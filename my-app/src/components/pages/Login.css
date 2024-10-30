@@ -1,0 +1,48 @@
+.inputbox {
+    
+    position: relative;
+    top: 10rem; /* Try setting this to 0 if the input box is off-screen */
+    left: 20rem;
+    width: 400px;
+    padding: 20px;
+    border-radius: 25px;
+
+   
+    outline: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    border: 2px solid #E0B0FF;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+}
+
+.boxes {
+    border-radius: 25px;
+    width: 300px;
+    padding: 12px 20px;
+    font-size: 16px;
+}
+
+#info {
+    color: #5e4ae3;
+    font-style: italic;
+    padding: 15px;
+}
+
+.infobutton {
+    border: none;
+    background-color: transparent;
+    color:#5e4ae3;
+    border-radius: 8px;
+    margin: 1rem;
+    width: 7rem;
+    border: 2px solid #E0B0FF;
+    font-style: italic;
+    transition: transform 0.1s ease;
+}
+
+.infobutton:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #f0e68c;
+}

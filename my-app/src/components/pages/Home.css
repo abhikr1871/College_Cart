@@ -1,0 +1,38 @@
+/* Home.css */
+.content {
+    position: relative; /* Relative position to layer above the background */
+    z-index: 1; /* Ensure this is above the background */
+    height: 50vh; /* Fill the full viewport height */
+    display: flex;
+    left: 50vh;
+    flex-direction: column; /* Stack search bar and carousel vertically */
+    align-items: center; /* Center align horizontally */
+    justify-content: center; /* Center align vertically */
+    text-align: center; /* Optional: center text */
+}
+/* Center alignment for the content */
+
+
+.content {
+    text-align: center;
+    max-width: 600px; /* Optional: restricts the width for readability */
+    padding: 20px;
+}
+
+.content h1 {
+    font-size: 2.5em;
+    color: #5e4ae3;
+    margin-bottom: 10px;
+    position: relative;
+    top: -15rem;
+    left: 5rem;
+}
+
+.content p {
+    font-size: 1.2em;
+    color: #666;
+    line-height: 1.6;
+    position: relative;
+    top:-15rem;
+    left: 5rem;
+}

@@ -1,0 +1,29 @@
+
+.inputbox{
+    position: relative;
+    top: -75vh;
+    width:400px;
+    padding:12px 20px;
+    border-radius: 25px;
+    border:1px solid #ccc;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 16px;
+    border-color:antiquewhite;
+
+    backdrop-filter: blur(570px); /* Amount of blur */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    padding: 20px;
+    border-radius: 8px;
+
+}   
+
+.boxes{
+    border-radius: 25px;
+    width:300px;
+    padding:12px 20px;
+}
+#info{
+    color: wheat;
+    font-style: italic;
+}
