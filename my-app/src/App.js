@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from "./components/pages/Home.js"
 import Login from "./components/pages/Login.js"
 import Signup from './components/pages/Signup.js'
+import Buy from './components/pages/Buy.js'
 
     function App() {
       return (
@@ -15,6 +16,8 @@ import Signup from './components/pages/Signup.js'
             <Route path="/Home" element={<Home/>}/>
             <Route path="/Login" element={<Login/>}/>
             <Route path="/Signup" element={<Signup/>}/>
+            <Route path="/Buy" element={<Buy/>}/>
+
             
           </Routes>
           </BrowserRouter>

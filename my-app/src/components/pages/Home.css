@@ -1,4 +1,8 @@
 /* Home.css */
+
+.home_container{
+    background-color: #f3f8ff;
+}
 .content {
     position: relative; /* Relative position to layer above the background */
     z-index: 1; /* Ensure this is above the background */
