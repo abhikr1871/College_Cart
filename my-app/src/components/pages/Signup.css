@@ -1,29 +1,79 @@
-
-.inputbox{
-    position: relative;
-    top: -75vh;
-    width:400px;
-    padding:12px 20px;
-    border-radius: 25px;
-    border:1px solid #ccc;
-    outline: none;
-    box-sizing: border-box;
-    font-size: 16px;
-    border-color:antiquewhite;
-
-    backdrop-filter: blur(570px); /* Amount of blur */
-    -webkit-backdrop-filter: blur(10px); /* For Safari support */
-    padding: 20px;
-    border-radius: 8px;
-
-}   
-
-.boxes{
-    border-radius: 25px;
-    width:300px;
-    padding:12px 20px;
+/* Container for the entire signup page */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f3f8ff;
 }
-#info{
-    color: wheat;
-    font-style: italic;
+
+/* Central content container for the form and illustration */
+.signup-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 1000px;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Left side signup form styling */
+.signup-form {
+    flex: 1;
+    padding: 2rem;
+    color: #333;
+}
+
+.signup-form h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.input-box {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.signup-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: #5e4ae3;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.signup-button:hover {
+    background-color: #3e32b3;
+}
+
+.forgot-password {
+    margin-top: 1rem;
+    color: #3e32b3;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Right side illustration styling */
+.illustration {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.illustration img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
 }

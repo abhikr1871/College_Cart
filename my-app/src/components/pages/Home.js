@@ -8,7 +8,7 @@ function Home() {
     
 
     return (
-        <div>
+        <div className='home_container'>
             <div ></div> {/* Background Image */}
             <Header />
             <Searchbar />

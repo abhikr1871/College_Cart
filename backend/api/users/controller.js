@@ -9,18 +9,26 @@ const generateToken = (id) => {
 
 // Signup (Register) a new user
 const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
   const result = {
+    status: 0,
     message: "User successfully registered",
     data: {}
   }
   try {
+
+    if (password !== confirmPassword) {
+      result.message = "Passwords do not match";
+      return res.status(201).json(result);
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      result.message='User already exists';
+      return res.status(201).json(result);
     }
     
-    const user = await User.create({ name, email, password });
+    const user = await User.create({ name, email, password,confirmPassword });
     const resp_data = {
       _id: user._id,
       name: user.name,
@@ -28,6 +36,7 @@ const signup = async (req, res) => {
       token: generateToken(user._id),
     }
     result.data = resp_data;
+    result.status=1;
     res.status(201).json(result);
   } catch (error) {
     result.message = error.message;
@@ -39,22 +48,34 @@ const signup = async (req, res) => {
 // (await bcrypt.compare(password, user.password))
 const login = async (req, res) => {
   const { email, password } = req.body;
+
+  const result = {
+    status: 0,
+    message: "User successfully Login",
+    data: {}
+  }
   try {
     const user = await User.findOne({ email });
     console.log(user);
     if (user && password == user.password) {
-      res.json({
+      const resp_data={
         _id: user._id,
         name: user.name,
         email: user.email,
         token: generateToken(user._id),
         message: "Successfully logged in"
-      });
+      };
+
+    result.data = resp_data;
+    result.status=1;
+    res.status(201).json(result);
     } else {
-      res.status(201).json({ message: 'Invalid email or password' });
+      result.message = "Invalid email or password";
+      res.status(201).json(result);
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    result.message = error.message;
+    res.status(500).json(result);
   }
 };
 
