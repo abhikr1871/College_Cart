@@ -21,15 +21,11 @@ export const getAllUsers = () => API.get('/users');
 
 // Item APIs
 export const getItems = () => API.get('/items');
-// export const createItem = (itemData) => API.post('/items', itemData);
 
-// Additional APIs for your project can be added here
 
 export default {
-  
   signup,
   login,
   getAllUsers,
   getItems,
-  // createItem,
 };

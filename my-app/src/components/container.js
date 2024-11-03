@@ -3,13 +3,16 @@ import "./container.css";
 import Card from "./Card";
 import { getItems } from "../services/api";
 
+
+
 function Container() {
-  const [items, setItems] = useState(null);
+  const [items, setItems] = useState([]);
 
   const fetchData = async () => {
     try {
       const response = await getItems();
       console.log(response?.data);
+      setItems(response?.data);
     } catch (error) {
       console.error(error?.message);
     }
@@ -21,7 +24,9 @@ function Container() {
 
   return (
     <div className="container">
-      <Card />
+      {items.map((item) => (
+        <Card key={item?.id} item={item}/> 
+      ))}
     </div>
   );
 }

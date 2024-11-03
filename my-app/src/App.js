@@ -6,7 +6,7 @@ import Home from "./components/pages/Home.js"
 import Login from "./components/pages/Login.js"
 import Signup from './components/pages/Signup.js'
 import Buy from './components/pages/Buy.js'
-
+import Sell from './components/pages/Sell.js';
     function App() {
       return (
         <div>
@@ -17,7 +17,7 @@ import Buy from './components/pages/Buy.js'
             <Route path="/Login" element={<Login/>}/>
             <Route path="/Signup" element={<Signup/>}/>
             <Route path="/Buy" element={<Buy/>}/>
-
+            <Route path="/Sell" element={<Sell/>}/>
             
           </Routes>
           </BrowserRouter>
