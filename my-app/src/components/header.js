@@ -21,7 +21,7 @@ const Header = () => {
             <a href="/buy">Buy</a>
           </li>
           <li>
-            <a href="#">Sell</a>
+            <a href="/sell">Sell</a>
           </li>
           <li>
             <a href="#">About Us</a>
