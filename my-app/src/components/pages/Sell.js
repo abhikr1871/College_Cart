@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import FileBase from "react-file-base64";
+import Header from "../header"
+import './Sell.css'
 
 const Sell = () => {
   const [title, setTitle] = useState("");
@@ -33,45 +35,54 @@ const Sell = () => {
 };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <div>
-        <label>Title:</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Description:</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Price:</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Upload Image:</label>
-        <FileBase
-          type="file"
-          multiple={false}
-          onDone={({ base64 }) =>
-            setImage(base64)
-          }
-        />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+    <div>
+    <Header />
+    <div className="sell-container">
+    <div className="sell-content">
+      <form onSubmit={handleSubmit} className="sell-form" encType="multipart/form-data">
+        <h2>Enlist Your Item</h2>
+        <div>
+          <label>Title:</label>
+          <input
+            type="text"
+            className="input-box"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Description:</label>
+          <textarea
+            className="input-box"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Price:</label>
+          <input
+            type="number"
+            className="input-box"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label className="upload-label">Upload Image:</label>
+          <FileBase
+            type="file"
+            multiple={false}
+            onDone={({ base64 }) => setImage(base64)}
+          />
+        </div>
+        <button type="submit" className="sell-button">Submit</button>
+      </form>
+    </div>
+  </div>
+  </div>
   );
 };
 
