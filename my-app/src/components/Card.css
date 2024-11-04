@@ -1,4 +1,26 @@
-.product_card{
-    position: relative;
-    right: 300px;
-}
+.product_card {
+    width: 300px;
+    margin: 20px;
+  }
+  
+  .product-image {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .text-red-500 {
+    color: #d32f2f; /* Red for "Limited time deal" badge */
+  }
+  
+  .text-yellow-500 {
+    color: #fbc02d; /* Yellow for ratings stars */
+  }
+  
+  .line-through {
+    text-decoration: line-through;
+  }
+  
+  .text-gray-500 {
+    color: #9e9e9e; /* Lighter gray for original price */
+  }
+  
