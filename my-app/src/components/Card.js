@@ -4,7 +4,7 @@ import "./Card.css";
 function Card({ item }) {
   return (
     <div className="product_card">
-      <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+      <div className="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-600 dark:border-gray-700">
         <a href="#">
           <img
             className="rounded-t-lg product-image"
@@ -18,23 +18,16 @@ function Card({ item }) {
               {item?.title}
             </h5>
           </a>
-          <p className="mb-2 text-xs font-medium text-red-500">
+          <p className="mb-2 text-xs font-medium text-yellow-500">
             Limited time deal
           </p>
-          <div className="flex items-center mb-2">
-            <span className="mr-1 text-sm text-yellow-500">★ ★ ★ ★ ☆</span>
-            <span className="text-xs text-gray-500">({item?.reviews})</span>
-          </div>
+          
           <p className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">
             ₹{item?.price}
-            <span className="ml-2 text-sm text-gray-500 line-through">
-              ₹{item?.originalPrice}
-            </span>
+           
           </p>
-          <p className="mb-3 text-xs text-gray-500">
-            Save {item?.discount}% off
-          </p>
-          <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
+          
+          <p className="mb-3 font-normal text-gray-700 dark:text-white">
             {item?.description}
           </p>
           <a
