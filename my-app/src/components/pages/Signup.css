@@ -77,3 +77,24 @@
     height: auto;
     border-radius: 10px;
 }
+
+.suggestions-list {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+    position: absolute; /* Adjust position as needed */
+    background-color: #d3d3d3; /* Set background color to gray */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.suggestions-list li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.suggestions-list li:hover {
+    background-color: #b0b0b0; /* Darker gray on hover */
+}

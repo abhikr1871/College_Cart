@@ -1,6 +1,7 @@
 const User = require('./model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const axios = require('axios');
 
 
 // Generate JWT
@@ -16,7 +17,7 @@ const generateToken = (id) => {
 
 // Signup (Register) a new user
 const signup = async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, collegeName , email, password, confirmPassword } = req.body;
   const result = {
     status: 0,
     message: "User successfully registered",
@@ -34,11 +35,20 @@ const signup = async (req, res) => {
       result.message='User already exists';
       return res.status(201).json(result);
     }
+    const response = await axios.get(`http://universities.hipolabs.com/search?name=${collegeName}&country=India`);
+    if (!response.data.length) {
+      result.message = "College not found in India";
+      console.log(result.message)
+      return res.status(404).json(result);
+    }
     
-    const user = await User.create({ name, email, password,confirmPassword });
+
+    
+    const user = await User.create({ name,collegeName, email, password,confirmPassword });
     const resp_data = {
       _id: user._id,
       name: user.name,
+      collegeName:user.collegeName,
       email: user.email,
       token: generateToken(user._id),
     }
