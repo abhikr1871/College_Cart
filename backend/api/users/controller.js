@@ -10,10 +10,10 @@ const axios = require('axios');
 
 
 
-
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const generateToken = (id, name, collegeName, email) => {
+  return jwt.sign({ id, name, collegeName, email }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
+
 
 // Signup (Register) a new user
 const signup = async (req, res) => {
@@ -35,7 +35,8 @@ const signup = async (req, res) => {
       result.message='User already exists';
       return res.status(201).json(result);
     }
-    const response = await axios.get(`http://universities.hipolabs.com/search?name=${collegeName}&country=India`);
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}?name=${collegeName}&country=India`);
+
     if (!response.data.length) {
       result.message = "College not found in India";
       console.log(result.message)
@@ -50,7 +51,7 @@ const signup = async (req, res) => {
       name: user.name,
       collegeName:user.collegeName,
       email: user.email,
-      token: generateToken(user._id),
+      token: generateToken(user._id, user.name, user.collegeName, user.email),
     }
     result.data = resp_data;
     result.status=1;
@@ -79,7 +80,7 @@ const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.name, user.collegeName, user.email),
         message: "Successfully logged in"
       };
 

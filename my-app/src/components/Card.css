@@ -1,26 +1,77 @@
+/* Card Container */
 .product_card {
-    width: 300px;
-    margin: 20px;
-  }
-  
-  .product-image {
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  .text-red-500 {
-    color: #d32f2f; /* Red for "Limited time deal" badge */
-  }
-  
-  .text-yellow-500 {
-    color: #fbc02d; /* Yellow for ratings stars */
-  }
-  
-  .line-through {
-    text-decoration: line-through;
-  }
-  
-  .text-gray-500 {
-    color: #9e9e9e; /* Lighter gray for original price */
-  }
-  
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+/* Card Style with Fixed Dimensions */
+.product_card .max-w-sm {
+  width: 250px; /* Set a fixed width for all cards */
+  background-color: #ffffff;
+  border: 1px solid #d1e0f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.product_card .max-w-sm:hover {
+  transform: scale(1.02); /* Slight scale on hover */
+}
+
+/* Fixed Image Dimensions */
+.product-image {
+  width: 100%; /* Ensure image takes full width of the container */
+  height: 150px; /* Set a fixed height */
+  object-fit: cover; /* Crop image to fit within the set dimensions */
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Title Styling */
+.title {
+  color: #1a3b5d;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Deal Text Styling */
+.deal {
+  color: #ff8c42;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Price Styling */
+.price {
+  color: #1a3b5d;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Description Styling */
+.description {
+  color: #5a6b7c;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Button Styling */
+.contact-btn {
+  background-color: #4a90e2;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.contact-btn:hover {
+  background-color: #357abd;
+}

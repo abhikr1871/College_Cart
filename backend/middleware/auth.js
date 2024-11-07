@@ -7,6 +7,7 @@ const auth = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    console.log('Authenticated User:', req.user); // Check if collegeName is present
     next();
   } catch (error) {
     res.status(400).json({ message: 'Invalid token' });

@@ -1,5 +1,7 @@
 const Item = require('./model');
 const { uploadImageToS3 } = require('../../middleware/uploadImage')
+const authMiddleware = require('../../middleware/auth.js'); 
+
 
 // const uploadItemImage = async (req, res) => {
 //     try {
@@ -23,54 +25,60 @@ const { uploadImageToS3 } = require('../../middleware/uploadImage')
 //       }
 //   };
 
-const listItems = async (req,res)=>{
-
-    try{
-        const items= await Item.find();
-        res.json(items);
-    }catch(error){
-        res.status(500).json({message:error.message});
-    }
-
-};
-
-
-const createItem = async (req, res) => {
-    const { title, description, price, image } = req.body;
-
+const listItems = async (req, res) => {
     try {
-        // Check if an image is provided in base64 format
-        if (!image) {
-            return res.status(400).json({ message: 'Image file is required' });
-        }
-
-        // Remove the prefix if it exists
-        const base64String = image.replace(/^data:image\/\w+;base64,/, '');
-        const mimeType = image.match(/^data:(image\/\w+);base64,/)[1]; // Extract mime type
-
-        // Upload the image to S3
-        const uploadResult = await uploadImageToS3(
-            base64String,
-            title, // You can customize the image name
-            mimeType
-        );
-
-        // Extract the image URL from the S3 upload result
-        const imageUrl = uploadResult.Location;
-
-        // Create a new item with the uploaded image URL
-        const item = await Item.create({
-            title,
-            image: imageUrl,
-            description,
-            price,
-            // seller: req.user._id
-        });
-
-        res.status(201).json(item);
+      // Confirm `collegeName` exists in `req.user`
+      const userCollege = req.user?.collegeName;
+      if (!userCollege) {
+        return res.status(400).json({ message: 'User college information is missing' });
+      }
+  
+      // Fetch items only from the same college
+      const items = await Item.find({ collegeName: userCollege });
+      res.json(items);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
-};
+  };
+  
 
+  const createItem = async (req, res) => {
+    const { title, description, price, image } = req.body;
+  
+    try {
+      const userCollege = req.user?.collegeName; // Get college from authenticated user
+      console.log(req.user); // Debugging the user object
+
+      if (!userCollege) {
+        return res.status(400).json({ message: 'User college information is missing' });
+      }
+      if (!image) {
+        return res.status(400).json({ message: 'Image file is required' });
+      }
+  
+      const base64String = image.replace(/^data:image\/\w+;base64,/, '');
+      const mimeType = image.match(/^data:(image\/\w+);base64,/)[1];
+  
+      const uploadResult = await uploadImageToS3(
+        base64String,
+        title,
+        mimeType
+      );
+  
+      const imageUrl = uploadResult.Location;
+  
+      const item = await Item.create({
+        title,
+        image: imageUrl,
+        description,
+        price,
+        collegeName: userCollege
+      });
+  
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
 module.exports = {listItems,  createItem };

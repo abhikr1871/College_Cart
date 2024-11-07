@@ -21,7 +21,7 @@ function Login() {
 
   // use effect lagao,
   //if is authenticated, redirect to /home
-  // dependency array khali rakhna
+  
 
   const handleLogin = async () => {
     let message = "hello";

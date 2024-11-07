@@ -7,6 +7,6 @@ const auth=require('../../middleware/auth');
 
 const router=express.Router();
 
-router.get('/',listItems);
-router.post('/create',createItem);
+router.get('/',auth,listItems);
+router.post('/create',auth,createItem);
 module.exports=router;
