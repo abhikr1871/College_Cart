@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 
-// app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: 'http://localhost:3000' }));
 // Register routes for each module
 app.use('/api/users', userRoutes);
 app.use('/api/items',itemRoutes);

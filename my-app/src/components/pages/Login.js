@@ -37,6 +37,7 @@ function Login() {
       if (response?.data?.status === 1) {
         localStorage.setItem("token", response?.data?.data?.token);
         localStorage.setItem("userId",response?.data?.data?.user_id);
+        
         setIsAuthenticated(true);
         setUsername(""); 
         setPassword("");

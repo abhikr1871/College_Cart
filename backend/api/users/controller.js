@@ -97,7 +97,7 @@ const login = async (req, res) => {
         user_id:user.user_id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id, user.name, user.collegeName, user.email),
+        token: generateToken(user._id, user.name, user.collegeName, user.email,user.user_id),
         message: "Successfully logged in"
       };
 

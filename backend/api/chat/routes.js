@@ -2,14 +2,13 @@
 const express = require('express');
 const Message = require('./model'); // Adjust path if necessary
 const router = express.Router();
-const authMiddleware = require('../../middleware/auth.js'); 
-const {saveMessageToDatabase, getChatHistory }=require('./controller');
-// Route to send/save a message
+const { saveMessageToDatabase, getChatHistory } = require('./controller');
 
-router.get('/chat/:userId1/:userId2',getChatHistory );
+// Get chat history between two users
+router.get('/chat/:userId1/:userId2', getChatHistory);
 
-
-router.post('/send', async (req, res) => {
+// Send message endpoint
+router.post('/', async (req, res) => {  // Change route to '/'
   const { senderId, receiverId, message } = req.body;
 
   try {

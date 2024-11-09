@@ -29,9 +29,14 @@ export const fetchChatHistory = async (userId1, userId2) => {
   const response = await API.get(`/chat/${userId1}/${userId2}`);
   return response.data;
 };
-
 export const sendMessageToAPI = (messageData) => {
-  return API.post('/send', messageData); // Now using Axios with the configured API instance
+  const data = {
+    ...messageData,
+    senderId: parseInt(messageData.senderId, 10),
+    receiverId: parseInt(messageData.receiverId, 10),
+  };
+
+  return API.post('/chat', data); // Using Axios with the configured API instance
 };
 
 export default {
