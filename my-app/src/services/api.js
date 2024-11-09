@@ -10,6 +10,8 @@ API.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 // Auth APIs
@@ -22,10 +24,21 @@ export const getAllUsers = () => API.get('/users');
 // Item APIs
 export const getItems = () => API.get('/items');
 
+// Chat APIs
+export const fetchChatHistory = async (userId1, userId2) => {
+  const response = await API.get(`/chat/${userId1}/${userId2}`);
+  return response.data;
+};
+
+export const sendMessageToAPI = (messageData) => {
+  return API.post('/send', messageData); // Now using Axios with the configured API instance
+};
 
 export default {
   signup,
   login,
   getAllUsers,
   getItems,
+  fetchChatHistory,
+  sendMessageToAPI,
 };
