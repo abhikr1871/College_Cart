@@ -5,7 +5,8 @@ const itemSchema = new mongoose.Schema({
   image: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true },
-  // seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User
+  collegeName: { type: String, required: true },
+  sellerId: { type:Number, required: true }, // Reference to User
   createdAt: { type: Date, default: Date.now }
 });
 

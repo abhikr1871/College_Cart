@@ -1,0 +1,38 @@
+.notification {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .notification-content {
+    font-size: 14px;
+  }
+  
+  .crossed {
+    text-decoration: line-through;
+    color: gray;
+  }
+  
+  .cross-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: red;
+  }
+  
+  .cross-btn:hover {
+    color: darkred;
+  }
+  
+  .notification p {
+    margin: 5px 0;
+  }
+  

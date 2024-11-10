@@ -21,7 +21,7 @@ function Login() {
 
   // use effect lagao,
   //if is authenticated, redirect to /home
-  // dependency array khali rakhna
+  
 
   const handleLogin = async () => {
     let message = "hello";
@@ -36,6 +36,8 @@ function Login() {
 
       if (response?.data?.status === 1) {
         localStorage.setItem("token", response?.data?.data?.token);
+        localStorage.setItem("userId",response?.data?.data?.user_id);
+        
         setIsAuthenticated(true);
         setUsername(""); 
         setPassword("");
