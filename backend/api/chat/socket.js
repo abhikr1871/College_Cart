@@ -1,4 +1,3 @@
-// chat/socket.js
 const { Server } = require('socket.io');
 const { saveMessageToDatabase } = require('./controller'); // Import the save message function
 
@@ -35,6 +34,11 @@ function setupWebSocket(server) {
         const receiverSocketId = userSocketMap.get(message.receiverId);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('receiveMessage', savedMessage);
+          io.to(receiverSocketId).emit('notification', {
+            message: 'You have a new message!',
+            senderId: message.senderId,
+            messageContent: message.message,
+          });
           console.log(`Message sent to ${message.receiverId}`);
         } else {
           console.log(`Receiver ${message.receiverId} is not connected`);

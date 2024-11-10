@@ -23,12 +23,10 @@ const Header = () => {
           <li>
             <a href="/sell">Sell</a>
           </li>
-          <li>
+          {/* <li>
             <a href="#">About Us</a>
-          </li>
-          <li>
-            <a href="#">Link5</a>
-          </li>
+          </li> */}
+          
         </ul>
         <div className="actions">
           {!isAuthenticated ? (

@@ -44,8 +44,6 @@ const signup = async (req, res) => {
     }
 
     // Hash the password before saving the user
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Generate user_id (you can adjust the logic based on your needs)
     const userCount = await User.countDocuments();
@@ -56,7 +54,7 @@ const signup = async (req, res) => {
       name, 
       collegeName, 
       email, 
-      password: hashedPassword,  // Store the hashed password
+      password,  // Store the hashed password
       user_id: userId  // Ensure user_id is set
     });
 
@@ -85,32 +83,34 @@ const login = async (req, res) => {
 
   const result = {
     status: 0,
-    message: "User successfully Login",
+    message: "User successfully logged in",
     data: {}
-  }
+  };
+
   try {
     const user = await User.findOne({ email });
-    console.log(user);
-    if (user && password == user.password) {
-      const resp_data={
+
+    // Check if user exists and compare the plain-text password with the hashed password
+    if (user && await bcrypt.compare(password, user.password)) {
+      const resp_data = {
         _id: user._id,
-        user_id:user.user_id,
+        user_id: user.user_id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id, user.name, user.collegeName, user.email,user.user_id),
+        token: generateToken(user._id, user.name, user.collegeName, user.email, user.user_id),
         message: "Successfully logged in"
       };
 
-    result.data = resp_data;
-    result.status=1;
-    res.status(201).json(result);
+      result.data = resp_data;
+      result.status = 1;
+      res.status(200).json(result); // Use 200 for successful login
     } else {
       result.message = "Invalid email or password";
-      res.status(201).json(result);
+      res.status(401).json(result); // Use 401 for unauthorized
     }
   } catch (error) {
     result.message = error.message;
-    res.status(500).json(result);
+    res.status(500).json(result); // Use 500 for internal server errors
   }
 };
 

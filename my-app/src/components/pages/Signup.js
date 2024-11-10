@@ -86,6 +86,7 @@ const SignUp = () => {
               className="input-box"
               type="text"
               value={name}
+              required
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
             />
@@ -93,6 +94,7 @@ const SignUp = () => {
               className="input-box"
               type="text"
               value={collegeName}
+              required
               onChange={handleCollegeNameChange}
               placeholder="College Name"
             />
@@ -107,21 +109,24 @@ const SignUp = () => {
             )}
             <input
               className="input-box"
-              type="text"
+              type="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="College Email"
+              placeholder="Email"
             />
             <input
               className="input-box"
               type="password"
               value={password}
+              required
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Set Password"
             />
             <input
               className="input-box"
               type="password"
+              required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm Password"
@@ -131,7 +136,7 @@ const SignUp = () => {
             </button>
           </div>
           <div className="illustration">
-            <img src="" alt="Isometric Illustration" />
+            <img src="/assets/signup.jpeg" alt="Isometric Illustration" />
           </div>
         </div>
       </div>

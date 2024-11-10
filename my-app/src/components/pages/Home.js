@@ -11,7 +11,7 @@ function Home() {
         <div className='home_container'>
             <div ></div> {/* Background Image */}
             <Header />
-            <Searchbar />
+           
             <div className="content"> {/* Wrap content to keep it above the background */}
                 {/* <Carousel /> */}
             </div>
