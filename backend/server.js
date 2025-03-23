@@ -1,8 +1,12 @@
-// const Mongodb_url ="mongodb+srv://abhiKr1871:Abhijeet123@collegecart.tgdzn.mongodb.net/";/
+const http = require('http');
 const app = require('./app');
+const setupWebSocket = require('./api/chat/socket'); // Import WebSocket setup
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = http.createServer(app); // Create HTTP server
+
+setupWebSocket(server); // Attach WebSocket to the server
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

@@ -1,16 +1,17 @@
-// Chat.js
 import React, { useState, useEffect } from 'react';
 import './Chat.css';
-import { fetchChatHistory, sendMessageToAPI } from '../services/api'; // Correct paths
-import socket from '../services/socket'; // Import the configured socket instance
+import { getMessages, sendMessage } from '../services/api'; // Correct paths
+import socket from '../services/socket'; // Import socket instance
 
 const Chat = ({ userId, sellerId, onClose }) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
 
+  // Derive chatboxId from userId and sellerId
+  const chatboxId = `${userId}_${sellerId}`;
+
   // Load chat history on component mount
   useEffect(() => {
-    // Debugging: check if userId and contactId are passed correctly
     if (!userId || !sellerId) {
       console.error("userId or sellerId is undefined", { userId, sellerId });
       return; // Prevent loading chat history if IDs are missing
@@ -18,7 +19,7 @@ const Chat = ({ userId, sellerId, onClose }) => {
 
     const loadChatHistory = async () => {
       try {
-        const data = await fetchChatHistory(userId, sellerId);
+        const data = await getMessages(chatboxId);
         setChatHistory(data);
       } catch (error) {
         console.error("Failed to fetch chat history:", error);
@@ -35,25 +36,25 @@ const Chat = ({ userId, sellerId, onClose }) => {
     return () => {
       socket.off('receiveMessage');
     };
-  }, [userId, sellerId]); // Dependencies on userId and contactId to reload chat when they change
+  }, [chatboxId]); // Reload chat when chatboxId changes
 
   // Handle sending a message
   const handleSendMessage = async () => {
     if (!message.trim()) return;
-  
+
     const newMessage = {
-      senderId: userId,      // Pass the buyer's ID
-      receiverId: sellerId, // Pass the seller's ID
-      message: message
+      senderId: userId,
+      receiverId: sellerId,
+      message: message,
     };
-  
+
     try {
       // Send the message to the backend
-      await sendMessageToAPI(newMessage);
-  
-      // Emit the message to the WebSocket
+      await sendMessage(newMessage);
+
+      // Emit the message to WebSocket
       socket.emit('sendMessage', newMessage);
-  
+
       // Update chat history with the new message
       setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
       setMessage(''); // Clear message input
@@ -61,7 +62,6 @@ const Chat = ({ userId, sellerId, onClose }) => {
       console.error("Failed to send message:", error);
     }
   };
-  
 
   return (
     <div className="chat-container">

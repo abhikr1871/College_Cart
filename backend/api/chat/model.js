@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
-  senderId: { type: String, required: true },
-  receiverId: { type: String, required: true },
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
 });
 
-const Message = mongoose.model('Message', messageSchema);
-module.exports = Message;
+const chatboxSchema = new mongoose.Schema({
+  chatboxId: { type: String, required: true, unique: true },
+  senderId: { type: String, required: true },
+  receiverId: { type: String, required: true },
+  messages: [messageSchema], // Array of messages between these two users
+});
+
+const Chatbox = mongoose.model('Chatbox', chatboxSchema);
+module.exports = Chatbox;

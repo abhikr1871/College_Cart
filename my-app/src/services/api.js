@@ -4,15 +4,18 @@ import axios from 'axios';
 const API = axios.create({ baseURL: 'http://localhost:4000/api' });
 
 // Add a request interceptor to include the token in headers if available
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+);
 
 // Auth APIs
 export const signup = (userData) => API.post('/users/signup', userData);
@@ -25,25 +28,44 @@ export const getAllUsers = () => API.get('/users');
 export const getItems = () => API.get('/items');
 
 // Chat APIs
-export const fetchChatHistory = async (userId1, userId2) => {
-  const response = await API.get(`/chat/${userId1}/${userId2}`);
-  return response.data;
+export const sendMessage = async (messageData) => {
+  try {
+    const response = await API.post('/chat/message', messageData);  // Fixed endpoint
+    return response.data;
+  } catch (error) {
+    console.error('Error sending message:', error);
+    return null;
+  }
 };
-export const sendMessageToAPI = (messageData) => {
-  const data = {
-    ...messageData,
-    senderId: parseInt(messageData.senderId, 10),
-    receiverId: parseInt(messageData.receiverId, 10),
-  };
 
-  return API.post('/chat', data); // Using Axios with the configured API instance
+// Fetch messages from chatbox
+export const getMessages = async (chatboxId) => {
+  try {
+    const response = await API.get(`/chat/messages/${chatboxId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return [];
+  }
 };
+
+// Fetch or create chatbox ID between two users
+export const getChatboxId = async (senderId, receiverId) => {
+  try {
+    const response = await API.get(`/chat/chatbox/${senderId}/${receiverId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chatbox ID:', error);
+    return null;
+  }
+};
+
 
 export default {
   signup,
   login,
   getAllUsers,
   getItems,
-  fetchChatHistory,
-  sendMessageToAPI,
+  getMessages,
+  sendMessage,
 };
