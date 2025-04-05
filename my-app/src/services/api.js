@@ -42,12 +42,13 @@ export const sendMessage = async (messageData) => {
 export const getMessages = async (chatboxId) => {
   try {
     const response = await API.get(`/chat/messages/${chatboxId}`);
-    return response.data;
+    return response.data.messages; // ✅ FIXED: only return the array
   } catch (error) {
     console.error('Error fetching messages:', error);
-    return [];
+    return []; // safe fallback
   }
 };
+
 
 // Fetch or create chatbox ID between two users
 export const getChatboxId = async (senderId, receiverId) => {

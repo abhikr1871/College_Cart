@@ -16,38 +16,27 @@ function setupWebSocket(server) {
       console.log(`User ${userId} connected with socket ID ${socket.id}`);
     });
 
-    // socket.on('sendMessage', async (messageData) => {
-    //   console.log('Message received:', messageData);
+    // Message handling
+    socket.on('sendMessage', async ({ senderId, receiverId, message }) => {
+      try {
+        const chatbox = await saveMessage({ senderId, receiverId, message });
 
-    //   try {
-    //     const chatbox = await saveMessage(messageData);
-    //     console.log('Chatbox after saving:', chatbox);
+        // Send message to the receiver if online
+        const receiverSocketId = userSocketMap.get(receiverId.toString());
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit('receiveMessage', {
+            senderId,
+            receiverId,
+            message,
+            timestamp: new Date(),
+          });
+        }
+      } catch (error) {
+        console.error('Error saving or sending message:', error);
+      }
+    });
 
-    //     if (!chatbox || !chatbox.messages.length) {
-    //       console.error('Message not saved correctly');
-    //       return;
-    //     }
-
-    //     const savedMessage = chatbox.messages[chatbox.messages.length - 1];
-    //     console.log('Message saved to DB:', savedMessage);
-
-    //     const receiverSocketId = userSocketMap.get(messageData.receiverId.toString());
-    //     if (receiverSocketId) {
-    //       io.to(receiverSocketId).emit('receiveMessage', savedMessage);
-    //       io.to(receiverSocketId).emit('notification', {
-    //         message: 'You have a new message!',
-    //         senderId: messageData.senderId,
-    //         messageContent: messageData.message,
-    //       });
-    //       console.log(`Message sent to ${messageData.receiverId}`);
-    //     } else {
-    //       console.log(`Receiver ${messageData.receiverId} is not connected`);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error saving message:', error);
-    //   }
-    // });
-
+    // Disconnect
     socket.on('disconnect', () => {
       userSocketMap.forEach((socketId, userId) => {
         if (socketId === socket.id) {

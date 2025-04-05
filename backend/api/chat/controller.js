@@ -40,22 +40,31 @@ async function saveMessage({ senderId, receiverId, message }) {
 }
 
 // Fetch all messages for a chatbox
+// Fetch all messages between a user and a client
 async function getMessages(req, res) {
-  const { chatboxId } = req.params;
+  const { userId, clientId } = req.params;
 
   try {
-    const chatbox = await Chatbox.findOne({ chatboxId });
+    // Ensure consistent ordering of userId and clientId
+    const chatbox = await Chatbox.findOne({
+      $or: [
+        { userId, clientId },
+        { userId: clientId, clientId: userId },
+      ],
+    });
 
     if (!chatbox) {
       return res.status(404).json({ message: "No messages found for this chatbox." });
     }
 
-    res.status(200).json(chatbox.messages);
+    // Return all messages in the chatbox
+    res.status(200).json({ messages: chatbox.messages });
   } catch (error) {
     console.error("Error fetching messages:", error);
     res.status(500).json({ message: "Failed to retrieve messages" });
   }
 }
+
 
 // Get or create a chatboxId between two users
 async function getChatboxId(req, res) {
