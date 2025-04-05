@@ -5,6 +5,13 @@ const messageSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
+// const messageSchema = new mongoose.Schema({
+//   message: { type: String, required: true },
+//   senderId: { type: String, required: true },
+//   receiverId: { type: String, required: true },
+//   timestamp: { type: Date, default: Date.now },
+// });
+
 const chatboxSchema = new mongoose.Schema({
   chatboxId: { type: String, required: true, unique: true },
   senderId: { type: String, required: true },

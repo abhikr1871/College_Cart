@@ -1,92 +1,92 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
-import { getMessages, sendMessage } from '../services/api'; // Correct paths
-import socket from '../services/socket'; // Import socket instance
+import { getMessages, sendMessage } from '../services/api';
+import socket from '../services/socket';
 
 const Chat = ({ userId, sellerId, onClose }) => {
-  const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
+    const [message, setMessage] = useState('');
+    const [chatHistory, setChatHistory] = useState([]);
+    const chatboxId = `${userId}_${sellerId}`;
+    const chatEndRef = useRef(null); // For auto-scrolling
 
-  // Derive chatboxId from userId and sellerId
-  const chatboxId = `${userId}_${sellerId}`;
+    // Load chat history on mount
+    useEffect(() => {
+        if (!userId || !sellerId) {
+            console.error("❌ Missing userId or sellerId", { userId, sellerId });
+            return;
+        }
 
-  // Load chat history on component mount
-  useEffect(() => {
-    if (!userId || !sellerId) {
-      console.error("userId or sellerId is undefined", { userId, sellerId });
-      return; // Prevent loading chat history if IDs are missing
-    }
+        const loadChatHistory = async () => {
+            try {
+                const data = await getMessages(chatboxId);
+                setChatHistory(data || []);
+            } catch (error) {
+                console.error("❌ Failed to fetch chat history:", error);
+            }
+        };
 
-    const loadChatHistory = async () => {
-      try {
-        const data = await getMessages(chatboxId);
-        setChatHistory(data);
-      } catch (error) {
-        console.error("Failed to fetch chat history:", error);
-      }
+        loadChatHistory();
+
+        // Socket: Listen for incoming messages
+        const handleReceiveMessage = (newMessage) => {
+            setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
+        };
+
+        socket.on('receiveMessage', handleReceiveMessage);
+
+        return () => {
+            socket.off('receiveMessage', handleReceiveMessage);
+        };
+    }, [chatboxId]);
+
+    // Scroll to bottom on new message
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chatHistory]);
+
+    // Handle sending a message
+    const handleSendMessage = async () => {
+        if (!message.trim()) return;
+
+        const newMessage = { senderId: userId, receiverId: sellerId, message };
+
+        try {
+            await sendMessage(newMessage);
+            socket.emit('sendMessage', newMessage);
+            setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
+            setMessage('');
+        } catch (error) {
+            console.error("❌ Failed to send message:", error);
+        }
     };
 
-    loadChatHistory();
+    return (
+        <div className="chat-container">
+            <div className="chat-header">
+                <h2>Chat with {sellerId}</h2>
+                <button onClick={onClose}>Close</button>
+            </div>
 
-    // Listen for incoming messages
-    socket.on('receiveMessage', (newMessage) => {
-      setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
-    });
+            <div className="chat-history">
+                {chatHistory.map((msg, index) => (
+                    <div key={index} className={`chat-message ${msg.senderId === userId ? "sent" : "received"}`}>
+                        <strong>{msg.senderId === userId ? 'You' : 'Other'}:</strong> {msg.message}
+                    </div>
+                ))}
+                <div ref={chatEndRef} /> {/* Auto-scroll target */}
+            </div>
 
-    return () => {
-      socket.off('receiveMessage');
-    };
-  }, [chatboxId]); // Reload chat when chatboxId changes
-
-  // Handle sending a message
-  const handleSendMessage = async () => {
-    if (!message.trim()) return;
-
-    const newMessage = {
-      senderId: userId,
-      receiverId: sellerId,
-      message: message,
-    };
-
-    try {
-      // Send the message to the backend
-      await sendMessage(newMessage);
-
-      // Emit the message to WebSocket
-      socket.emit('sendMessage', newMessage);
-
-      // Update chat history with the new message
-      setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
-      setMessage(''); // Clear message input
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
-  };
-
-  return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <h2>Chat with {sellerId}</h2>
-        <button onClick={onClose}>Close</button>
-      </div>
-      <div className="chat-history" style={{ height: '400px', overflowY: 'scroll' }}>
-        {chatHistory.map((msg, index) => (
-          <div key={index} className={`chat-message ${msg.senderId === userId ? "sent" : "received"}`}>
-            <strong>{msg.senderId === userId ? 'You' : 'Other'}:</strong> {msg.message}
-          </div>
-        ))}
-      </div>
-      <div className="chat-input">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type a message..."
-        />
-        <button onClick={handleSendMessage}>Send</button>
-      </div>
-    </div>
-  );
+            <div className="chat-input">
+                <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type a message..."
+                />
+                <button onClick={handleSendMessage}>Send</button>
+            </div>
+        </div>
+    );
 };
 
 export default Chat;
