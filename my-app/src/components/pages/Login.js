@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../header";
 import "./Login.css";
 import { login } from "../../services/api";
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../../context/Authcontext";
-import { useEffect } from 'react';
-
 
 function Login() {
-  const {isAuthenticated, setIsAuthenticated} = useAuthContext();
+  const { isAuthenticated, setIsAuthenticated } = useAuthContext();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,29 +15,23 @@ function Login() {
     if (isAuthenticated) {
       navigate("/home");
     }
-  }, [isAuthenticated]);
-
-  // use effect lagao,
-  //if is authenticated, redirect to /home
-  
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async () => {
-    let message = "hello";
-
-
     try {
       const response = await login({ email: username, password: password });
       console.log("response", response);
-      message = response?.data?.message;
+      const message = response?.data?.message;
       console.log(message);
       window.alert(message);
 
       if (response?.data?.status === 1) {
         localStorage.setItem("token", response?.data?.data?.token);
-        localStorage.setItem("userId",response?.data?.data?.user_id);
-        
+        localStorage.setItem("userId", response?.data?.data?.user_id);
+        localStorage.setItem("userName", response?.data?.data?.name); // ✅ save username
+
         setIsAuthenticated(true);
-        setUsername(""); 
+        setUsername("");
         setPassword("");
         navigate('/home');
       } else {
@@ -47,6 +39,7 @@ function Login() {
       }
     } catch (error) {
       console.error(error?.message);
+      window.alert("Login failed. Please check your credentials.");
     }
   };
 
@@ -77,7 +70,6 @@ function Login() {
           <p className="forgot-password">Forgot password?</p>
         </div>
         <div className="illustration">
-        
           <img src="/assets/LoginImage.png" alt="Isometric Illustration" />
         </div>
       </div>

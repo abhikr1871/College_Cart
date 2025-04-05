@@ -43,8 +43,8 @@ const SignUp = () => {
       console.log("response", response);
       if (response?.data?.status === 1) {
         localStorage.setItem("token", response?.data?.data?.token);
-       
-        localStorage.setItem("userId",response?.data?.data?.user_id);
+        localStorage.setItem("userId", response?.data?.data?.user_id);
+        localStorage.setItem("username", response?.data?.data?.name); // ✅ Save username
         setIsAuthenticated(true);
         navigate("/home");
       }

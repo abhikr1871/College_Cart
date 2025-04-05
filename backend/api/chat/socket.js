@@ -17,16 +17,17 @@ function setupWebSocket(server) {
     });
 
     // Message handling
-    socket.on('sendMessage', async ({ senderId, receiverId, message }) => {
+    socket.on('sendMessage', async ({ senderId, receiverId, message, senderName }) => {
       try {
-        const chatbox = await saveMessage({ senderId, receiverId, message });
-
+        // const chatbox = await saveMessage({ senderId, receiverId, message, senderName }); // Include senderName
+    
         // Send message to the receiver if online
         const receiverSocketId = userSocketMap.get(receiverId.toString());
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('receiveMessage', {
             senderId,
             receiverId,
+            senderName,  // Send senderName to receiver
             message,
             timestamp: new Date(),
           });
@@ -35,6 +36,7 @@ function setupWebSocket(server) {
         console.error('Error saving or sending message:', error);
       }
     });
+    
 
     // Disconnect
     socket.on('disconnect', () => {

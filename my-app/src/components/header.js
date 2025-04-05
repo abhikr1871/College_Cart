@@ -2,12 +2,16 @@ import React from "react";
 import "./header.css";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../context/Authcontext";
+
 const Header = () => {
   const { isAuthenticated, setIsAuthenticated, logout } = useAuthContext();
 
-  const handleLogout = ()=>{
-    logout();
-  }
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName"); // ✅ remove username too
+    logout(); // assuming this sets `isAuthenticated` to false
+  };
 
   return (
     <header>
@@ -23,10 +27,6 @@ const Header = () => {
           <li>
             <a href="/sell">Sell</a>
           </li>
-          {/* <li>
-            <a href="#">About Us</a>
-          </li> */}
-          
         </ul>
         <div className="actions">
           {!isAuthenticated ? (

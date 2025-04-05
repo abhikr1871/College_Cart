@@ -3,13 +3,13 @@ import './Chat.css';
 import { getMessages, sendMessage } from '../services/api';
 import socket from '../services/socket';
 
-const Chat = ({ userId, sellerId, onClose }) => {
+const Chat = ({ userId, sellerId, userName, onClose }) => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
-    const chatboxId = [userId, sellerId].sort().join('_'); // consistent format
-    const chatEndRef = useRef(null); // For auto-scrolling
 
-    // Load chat history on mount
+    const chatboxId = [userId, sellerId].sort().join('_');
+    const chatEndRef = useRef(null);
+
     useEffect(() => {
         if (!userId || !sellerId) {
             console.error("❌ Missing userId or sellerId", { userId, sellerId });
@@ -27,7 +27,6 @@ const Chat = ({ userId, sellerId, onClose }) => {
 
         loadChatHistory();
 
-        // Socket: Listen for incoming messages
         const handleReceiveMessage = (newMessage) => {
             setChatHistory((prev) => [...prev, newMessage]);
         };
@@ -39,18 +38,22 @@ const Chat = ({ userId, sellerId, onClose }) => {
         };
     }, [chatboxId, userId, sellerId]);
 
-    // Scroll to bottom when chatHistory changes
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatHistory]);
 
-    // Send message handler
     const handleSendMessage = async () => {
         if (!message.trim()) return;
 
-        const newMessage = { senderId: userId, receiverId: sellerId, message };
+        const newMessage = {
+            senderId: userId,
+            receiverId: sellerId,
+            senderName: userName ,  // ✅ Correct name from props
+            message,
+        };
 
         try {
+            console.log("💬 Sending message as:", userName);
             await sendMessage(newMessage);
             socket.emit('sendMessage', newMessage);
             setChatHistory((prev) => [...prev, newMessage]);
@@ -73,7 +76,7 @@ const Chat = ({ userId, sellerId, onClose }) => {
                         key={index}
                         className={`chat-message ${msg.senderId === userId ? 'sent' : 'received'}`}
                     >
-                        <strong>{msg.senderId === userId ? 'You' : 'Other'}:</strong> {msg.message}
+                        <strong>{msg.senderId === userId ? 'You' : msg.senderName}:</strong> {msg.message}
                     </div>
                 ))}
                 <div ref={chatEndRef} />

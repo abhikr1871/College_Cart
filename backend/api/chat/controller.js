@@ -1,69 +1,94 @@
 const Chatbox = require('./model'); // Updated model
 
 // Save a message to an existing chatbox or create a new chatbox
-async function saveMessage({ senderId, receiverId, message }) {
+const saveMessage = async ({ senderId, receiverId, message, senderName }) => {
   try {
-    const chatboxId = [senderId, receiverId].sort().join('_'); // Ensure unique chatboxId
+    const chatboxId = [senderId, receiverId].sort().join('_');
 
     let chatbox = await Chatbox.findOne({ chatboxId });
 
     if (!chatbox) {
-      chatbox = new Chatbox({
-        chatboxId,
-        senderId,
-        receiverId,
-        messages: [],
-      });
+      chatbox = new Chatbox({ chatboxId, senderId, receiverId, messages: [] });
     }
 
-    const newMessage = { message, timestamp: new Date() };
-    chatbox.messages.push(newMessage); // Add the new message
-    
-    // const newMessage = {
-    //   message,
-    //   senderId: String(senderId),
-    //   receiverId: String(receiverId),
-    //   timestamp: new Date(),
-    // };
-    
-    // chatbox.messages.push(newMessage);
-    // console.log('Saving message:', newMessage);
+    // Push new message with senderName
+    chatbox.messages.push({ message, senderName, timestamp: new Date() });
 
-    
     await chatbox.save();
-
     return chatbox;
   } catch (error) {
-    console.error('Database error:', error);
+    console.error('Error saving message:', error);
     throw error;
   }
-}
+};
 
+module.exports = { saveMessage };
 // Fetch all messages for a chatbox
 // Fetch all messages between a user and a client
+// async function getMessages(req, res) {
+//   const { userId, clientId } = req.params;
+
+//   try {
+//     // Ensure consistent ordering of userId and clientId
+//     const chatbox = await Chatbox.findOne({
+//       $or: [
+//         { userId, clientId },
+//         { userId: clientId, clientId: userId },
+//       ],
+//     });
+
+//     if (!chatbox) {
+//       return res.status(404).json({ message: "No messages found for this chatbox." });
+//     }
+
+//     // Return all messages in the chatbox
+//     res.status(200).json({ messages: chatbox.messages });
+//   } catch (error) {
+//     console.error("Error fetching messages:", error);
+//     res.status(500).json({ message: "Failed to retrieve messages" });
+//   }
+// }
+
+// GET /api/messages/:chatboxId
+// async function getMessages(req, res) {
+//   const { chatboxId } = req.params;
+
+//   try {
+//     const chatbox = await Chatbox.findById(chatboxId);
+//     if (!chatbox) {
+//       return res.status(404).json({ message: "Chatbox not found" });
+//     }
+
+//     res.status(200).json({ messages: chatbox.messages });
+//   } catch (error) {
+//     console.error("Error fetching messages:", error);
+//     res.status(500).json({ message: "Failed to retrieve messages" });
+//   }
+// }
+
 async function getMessages(req, res) {
-  const { userId, clientId } = req.params;
+  const { chatboxId } = req.params;
+  console.log("👉 Requested Chatbox ID:", chatboxId);
 
   try {
-    // Ensure consistent ordering of userId and clientId
-    const chatbox = await Chatbox.findOne({
-      $or: [
-        { userId, clientId },
-        { userId: clientId, clientId: userId },
-      ],
-    });
+    const chatbox = await Chatbox.findOne({ chatboxId: chatboxId });
 
     if (!chatbox) {
-      return res.status(404).json({ message: "No messages found for this chatbox." });
+      console.log("❌ Chatbox not found in DB");
+      return res.status(404).json({ message: "Chatbox not found" });
     }
 
-    // Return all messages in the chatbox
+    console.log("✅ Chatbox found:", chatbox);
     res.status(200).json({ messages: chatbox.messages });
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    console.error("🔥 Error fetching messages:", error);
     res.status(500).json({ message: "Failed to retrieve messages" });
   }
 }
+
+
+
+
 
 
 // Get or create a chatboxId between two users

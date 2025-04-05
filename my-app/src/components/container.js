@@ -6,19 +6,20 @@ import { getItems } from "../services/api";
 function Container() {
   const [items, setItems] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(""); // ✅ add this
 
-  // Fetch userId from localStorage
+  // Fetch userId and userName from localStorage
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
-    }
+    const storedUserName = localStorage.getItem("username"); // ✅ same as login.js
+
+    if (storedUserId) setUserId(storedUserId);
+    if (storedUserName) setUserName(storedUserName);
   }, []);
 
   const fetchData = async () => {
     try {
       const response = await getItems();
-      console.log(response?.data);
       setItems(response?.data);
     } catch (error) {
       console.error(error?.message);
@@ -32,7 +33,7 @@ function Container() {
   return (
     <div className="container">
       {items.map((item) => (
-        <Card key={item?.id} item={item} userId={userId} /> 
+        <Card key={item?.id} item={item} userId={userId} userName={userName} />
       ))}
     </div>
   );

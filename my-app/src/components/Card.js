@@ -2,18 +2,16 @@ import React, { useState } from "react";
 import "./Card.css";
 import Chat from "./Chat";
 
-function Card({ item, userId }) {
+function Card({ item, userId, userName }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [sellerId, setSellerId] = useState(null);
-  // Handle Contact button click
+
   const handleContactClick = () => {
     console.log("Contact button clicked");
     setSellerId(item?.sellerId); 
- 
     setIsChatOpen(true);
   };
 
-  // Close chat window
   const closeChat = () => {
     setIsChatOpen(false);
     setSellerId(null); 
@@ -37,21 +35,19 @@ function Card({ item, userId }) {
           <p className="price">₹{item?.price}</p>
           <p className="description">{item?.description}</p>
 
-          <button
-            className="contact-btn"
-            onClick={handleContactClick} // Open the chat on click
-          >
+          <button className="contact-btn" onClick={handleContactClick}>
             Contact
           </button>
         </div>
       </div>
 
-      {/* Show the chat component if isChatOpen is true */}
       {isChatOpen && (
-        <Chat 
-          userId={userId} // Pass the userId from props
-          sellerId={item?.sellerId} // Assuming the item has a sellerId field
-          onClose={closeChat} // Close the chat window
+        <Chat
+          userId={userId}
+          userName={userName} // ✅ Pass userName here
+          sellerId={item?.sellerId}
+          sellerName={item?.sellerName || "Seller"} // Optional but safe
+          onClose={closeChat}
         />
       )}
     </div>

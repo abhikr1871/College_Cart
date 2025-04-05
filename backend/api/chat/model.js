@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
+  senderName: { type: String,required: true},
 });
 
 // const messageSchema = new mongoose.Schema({
