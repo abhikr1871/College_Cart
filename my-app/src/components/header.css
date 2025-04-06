@@ -68,3 +68,21 @@ header {
 .action-btn {
     text-decoration: none; /* Removes underline */
 }
+.notification-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    margin-right: 10px;
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 9px;
+    height: 9px;
+    background-color: red;
+    border-radius: 50%;
+  }
+  

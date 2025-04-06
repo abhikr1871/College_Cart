@@ -1,22 +1,35 @@
-import { useState, useEffect } from 'react';
-import socket from '../services/socket'; // Assuming your socket is exported from services
+import { useEffect, useState } from 'react';
+import socket from '../services/socket';
+import api from '../services/api';
+import { getUserId } from '../context/Authcontext';
 
 const useSocket = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    // Listen for 'notification' event from the socket server
-    socket.on('notification', (notification) => {
-      setNotifications((prevNotifications) => [
-        ...prevNotifications,
-        notification,
-      ]);
+    const userId = getUserId();
+    if (!userId) return;
+
+    // Fetch stored notifications from MongoDB
+    const fetchStoredNotifications = async () => {
+      try {
+        const stored = await api.getNotifications(userId);
+        setNotifications(stored || []);
+      } catch (error) {
+        console.error('Failed to fetch stored notifications:', error);
+      }
+    };
+
+    fetchStoredNotifications();
+
+    // Listen for real-time notification
+    socket.on('notification', (notif) => {
+      setNotifications((prev) => [...prev, notif]);
     });
 
-    // Emit user connection event
-    socket.emit('userConnected', 'userId'); // Replace 'userId' with actual user ID
+    // Let backend know this user is online
+    socket.emit('userConnected', userId);
 
-    // Cleanup the socket listener on component unmount
     return () => {
       socket.off('notification');
     };

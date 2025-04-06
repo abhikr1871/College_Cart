@@ -28,15 +28,15 @@ export const getAllUsers = () => API.get('/users');
 export const getItems = () => API.get('/items');
 
 // Chat APIs
-export const sendMessage = async (messageData) => {
-  try {
-    const response = await API.post('/chat/message', messageData);  // Fixed endpoint
-    return response.data;
-  } catch (error) {
-    console.error('Error sending message:', error);
-    return null;
-  }
-};
+// export const sendMessage = async (messageData) => {
+//   try {
+//     const response = await API.post('/chat/message', messageData);  // Fixed endpoint
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error sending message:', error);
+//     return null;
+//   }
+// };
 
 // Fetch messages from chatbox
 export const getMessages = async (chatboxId) => {
@@ -60,7 +60,24 @@ export const getChatboxId = async (senderId, receiverId) => {
     return null;
   }
 };
+export const getNotifications = async (userId) => {
+  try {
+    const response = await API.get(`/notifications/user/${userId}`); // <-- fixed path
+    return response.data; // ← you were already returning `.notifications`, but the controller returns full array
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return [];
+  }
+};
 
+// 2. Mark a notification as read or delete it
+export const deleteNotification = async (notifId) => {
+  try {
+    await API.delete(`/notifications/${notifId}`);
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+  }
+};
 
 export default {
   signup,
@@ -68,5 +85,7 @@ export default {
   getAllUsers,
   getItems,
   getMessages,
-  sendMessage,
+  getNotifications,
+  deleteNotification,
+  // sendMessage,
 };

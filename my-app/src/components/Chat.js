@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
-import { getMessages, sendMessage } from '../services/api';
+import { getMessages } from '../services/api';
 import socket from '../services/socket';
 
-const Chat = ({ userId, sellerId, userName, onClose }) => {
+const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const chatboxId = [userId, sellerId].sort().join('_');
     const chatEndRef = useRef(null);
@@ -22,19 +23,35 @@ const Chat = ({ userId, sellerId, userName, onClose }) => {
                 setChatHistory(Array.isArray(messages) ? messages : []);
             } catch (error) {
                 console.error("❌ Failed to fetch chat history:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
         loadChatHistory();
 
+        // 🟢 Let server know user is online
+        socket.emit('userConnected', userId);
+        console.log("🔌 userConnected event emitted:", userId);
+
+        // 🟢 Handle new chat message
         const handleReceiveMessage = (newMessage) => {
+            console.log("📥 Received message via socket:", newMessage);
             setChatHistory((prev) => [...prev, newMessage]);
         };
 
+        // 🟡 Handle new notification
+        const handleNotification = (data) => {
+            console.log("🔔 Received notification:", data);
+            alert(data.message); // You can replace this with a toast
+        };
+
         socket.on('receiveMessage', handleReceiveMessage);
+        socket.on('notification', handleNotification);
 
         return () => {
             socket.off('receiveMessage', handleReceiveMessage);
+            socket.off('notification', handleNotification);
         };
     }, [chatboxId, userId, sellerId]);
 
@@ -47,38 +64,46 @@ const Chat = ({ userId, sellerId, userName, onClose }) => {
 
         const newMessage = {
             senderId: userId,
-            receiverId: sellerId,
-            senderName: userName ,  // ✅ Correct name from props
+            receiverId: String(sellerId),
+            senderName: String(userName),
             message,
+            timestamp: new Date(),
+            read: false,
         };
 
-        try {
-            console.log("💬 Sending message as:", userName);
-            await sendMessage(newMessage);
-            socket.emit('sendMessage', newMessage);
-            setChatHistory((prev) => [...prev, newMessage]);
-            setMessage('');
-        } catch (error) {
-            console.error("❌ Failed to send message:", error);
-        }
+        console.log("📤 Emitting sendMessage:", newMessage);
+        socket.emit('sendMessage', newMessage);
+
+        setChatHistory((prev) => [...prev, newMessage]);
+        setMessage('');
     };
 
     return (
         <div className="chat-container">
             <div className="chat-header">
-                <h2>Chat with {sellerId}</h2>
+                <h2>Chat with {sellerName || sellerId}</h2>
                 <button onClick={onClose}>Close</button>
             </div>
 
             <div className="chat-history">
-                {chatHistory.map((msg, index) => (
-                    <div
-                        key={index}
-                        className={`chat-message ${msg.senderId === userId ? 'sent' : 'received'}`}
-                    >
-                        <strong>{msg.senderId === userId ? 'You' : msg.senderName}:</strong> {msg.message}
-                    </div>
-                ))}
+                {loading ? (
+                    <p className="loading">Loading chat history...</p>
+                ) : (
+                    chatHistory.map((msg, index) => (
+                        <div
+                            key={index}
+                            className={`chat-message ${msg.senderId === userId ? 'sent' : 'received'}`}
+                        >
+                            <strong>{msg.senderId === userId ? 'You' : msg.senderName}:</strong> {msg.message}
+                            <span className="timestamp">
+                                {msg.timestamp && new Date(msg.timestamp).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                })}
+                            </span>
+                        </div>
+                    ))
+                )}
                 <div ref={chatEndRef} />
             </div>
 
@@ -87,6 +112,7 @@ const Chat = ({ userId, sellerId, userName, onClose }) => {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     placeholder="Type a message..."
                 />
                 <button onClick={handleSendMessage}>Send</button>

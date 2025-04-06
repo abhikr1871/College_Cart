@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Header from "../header";
 import "./Login.css";
-import { login } from "../../services/api";
+import { login, getNotifications } from "../../services/api"; // ✅ Use service for notifications
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../../context/Authcontext";
+import socket from "../../services/socket";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
   const { isAuthenticated, setIsAuthenticated } = useAuthContext();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -19,21 +24,42 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await login({ email: username, password: password });
-      console.log("response", response);
+      const response = await login({ email: username, password });
       const message = response?.data?.message;
-      console.log(message);
       window.alert(message);
 
       if (response?.data?.status === 1) {
-        localStorage.setItem("token", response?.data?.data?.token);
-        localStorage.setItem("userId", response?.data?.data?.user_id);
-        localStorage.setItem("userName", response?.data?.data?.name); // ✅ save username
+        const token = response?.data?.data?.token;
+        const userId = response?.data?.data?.user_id;
+        const userName = response?.data?.data?.name;
 
+        // ✅ Save info
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("userName", userName);
+
+        // ✅ Auth and socket
         setIsAuthenticated(true);
         setUsername("");
         setPassword("");
-        navigate('/home');
+        socket.emit("userConnected", userId);
+
+        // ✅ Notification fetch (with error-safe try block)
+        try {
+          const data = await getNotifications(userId);
+          if (Array.isArray(data) && data.length > 0) {
+            setNotifications(data);
+            toast.info(`🔔 You have ${data.length} new message(s)! Click to view.`, {
+              autoClose: false,
+              onClick: () => navigate('/home?showNotifications=true'),
+            });
+          }
+        } catch (notifError) {
+          console.warn("📭 Notification fetch failed:", notifError.message);
+        }
+
+        // ✅ Navigate only once
+        navigate("/home");
       } else {
         window.alert("Token not received. Please try again.");
       }
@@ -73,6 +99,8 @@ function Login() {
           <img src="/assets/LoginImage.png" alt="Isometric Illustration" />
         </div>
       </div>
+
+      <ToastContainer position="top-right" />
     </div>
   );
 }

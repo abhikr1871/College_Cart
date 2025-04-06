@@ -1,12 +1,14 @@
-const http = require('http');
-const app = require('./app');
-const setupWebSocket = require('./api/chat/socket'); // Import WebSocket setup
+require('dotenv').config();
+const http = require("http");
+const app = require("./app");
+const setupWebSocket = require("./api/chat/socket");
 
-const PORT = process.env.PORT || 5000;
-const server = http.createServer(app); // Create HTTP server
+const PORT = process.env.PORT || 4000;
+const server = http.createServer(app);
 
-setupWebSocket(server); // Attach WebSocket to the server
+// Initialize WebSocket
+setupWebSocket(server);
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

@@ -15,35 +15,38 @@ function App() {
   const notifications = useSocket();
 
   return (
-    <div>
-     {notifications.map((notification, index) => (
-        <Notification
-          key={index}
-          message={notification.message}
-          senderId={notification.senderId}
-          messageContent={notification.messageContent}
-        />
-      ))}
-
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="/Home" element={<Home />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Signup" element={<Signup />} />
-          <Route path="/Buy" element={<Buy />} />
-          <Route path="/Profile" element={<Profile/>}/>
-          <Route
-            path="/Sell"
-            element={
-              <PrivateRoute>
-                <Sell />
-              </PrivateRoute>
-            }
+    <BrowserRouter>
+      {/* 🔔 Notification Area */}
+     <div className="notification-container">
+        {notifications.map((notification, index) => (
+          <Notification
+            key={index}
+            message={notification.message || notification.messageContent}
+            senderId={notification.senderId}
+            type={notification.type} // Add type prop for different styles
+            messageContent={notification.messageContent}
           />
-        </Routes>
-      </BrowserRouter>
-    </div>
+        ))}
+      </div>
+
+      {/* 🧭 Routes */}
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="/Home" element={<Home />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/Signup" element={<Signup />} />
+        <Route path="/Buy" element={<Buy />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route
+          path="/Sell"
+          element={
+            <PrivateRoute>
+              <Sell />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

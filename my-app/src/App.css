@@ -36,3 +36,130 @@
     transform: rotate(360deg);
   }
 }
+
+
+notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual notification styling */
+.notification {
+  background-color: #fff;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+/* Notification content */
+.notification-content {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.notification-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notification-content strong {
+  color: #333;
+}
+
+/* Close button */
+.cross-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 5px;
+  transition: color 0.2s;
+}
+
+.cross-btn:hover {
+  color: #ff4444;
+}
+
+/* Animation for new notifications */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Crossed out notification */
+.notification.crossed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* Scrollbar styling */
+.notification-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.notification-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.notification-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Different types of notifications */
+.notification.chat {
+  border-left-color: #2196f3;
+}
+
+.notification.success {
+  border-left-color: #4caf50;
+}
+
+.notification.warning {
+  border-left-color: #ff9800;
+}
+
+.notification.error {
+  border-left-color: #f44336;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .notification {
+    padding: 10px;
+  }
+}
