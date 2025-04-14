@@ -33,18 +33,18 @@ function Login() {
         const userId = response?.data?.data?.user_id;
         const userName = response?.data?.data?.name;
 
-        // ✅ Save info
+        // Save info
         localStorage.setItem("token", token);
         localStorage.setItem("userId", userId);
         localStorage.setItem("userName", userName);
 
-        // ✅ Auth and socket
+        // Auth and socket
         setIsAuthenticated(true);
         setUsername("");
         setPassword("");
         socket.emit("userConnected", userId);
 
-        // ✅ Notification fetch (with error-safe try block)
+        // Notification fetch (with error-safe try block)
         try {
           const data = await getNotifications(userId);
           if (Array.isArray(data) && data.length > 0) {
@@ -58,7 +58,7 @@ function Login() {
           console.warn("📭 Notification fetch failed:", notifError.message);
         }
 
-        // ✅ Navigate only once
+        // Navigate only once
         navigate("/home");
       } else {
         window.alert("Token not received. Please try again.");

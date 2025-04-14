@@ -12,11 +12,6 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
     const chatEndRef = useRef(null);
 
     useEffect(() => {
-        if (!userId || !sellerId) {
-            console.error("❌ Missing userId or sellerId", { userId, sellerId });
-            return;
-        }
-
         const loadChatHistory = async () => {
             try {
                 const messages = await getMessages(chatboxId);
@@ -29,18 +24,23 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         };
 
         loadChatHistory();
+    }, [chatboxId]);
 
-        // 🟢 Let server know user is online
+    useEffect(() => {
+        if (!userId || !sellerId) {
+            console.error("Missing userId or sellerId", { userId, sellerId });
+            return;
+        }
+
         socket.emit('userConnected', userId);
         console.log("🔌 userConnected event emitted:", userId);
 
-        // 🟢 Handle new chat message
         const handleReceiveMessage = (newMessage) => {
             console.log("📥 Received message via socket:", newMessage);
             setChatHistory((prev) => [...prev, newMessage]);
         };
 
-        // 🟡 Handle new notification
+        
         const handleNotification = (data) => {
             console.log("🔔 Received notification:", data);
             alert(data.message); // You can replace this with a toast

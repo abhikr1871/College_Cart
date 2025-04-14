@@ -13,7 +13,7 @@ function Home() {
 
   useEffect(() => {
     const storedName = localStorage.getItem("userName");
-    setUserName(storedName || "Logged In User");
+    setUserName(storedName);
 
     // ✅ FIX: add transports: ['websocket'] to avoid polling issues
     const socket = io("http://localhost:4000", {

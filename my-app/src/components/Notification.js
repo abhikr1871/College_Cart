@@ -1,19 +1,44 @@
 import React, { useState } from 'react';
-import './Notification.css'; // Ensure you have some basic styling here
+import './Notification.css';
 
-const Notification = ({ message, senderId, messageContent }) => {
-  const [isCrossed, setIsCrossed] = useState(false);
+const Notification = ({ message, senderId, senderName, chatboxId, onClick }) => {
+  const [isVisible, setIsVisible] = useState(true);
 
-  // Handle cross mark click to toggle the crossed-out style
-  const handleCrossClick = () => {
-    setIsCrossed(!isCrossed);
+  // Handle cross mark click to dismiss the notification
+  const handleCrossClick = (e) => {
+    e.stopPropagation(); // Prevent triggering the notification click
+    setIsVisible(false);
   };
 
+  // Handle notification click
+  const handleNotificationClick = () => {
+    if (!chatboxId || !senderId) {
+      console.error("❌ Missing required fields in notification:", { chatboxId, senderId });
+      alert("This notification is incomplete and cannot open the chat.");
+      return;
+    }
+
+    // Trigger the onClick handler passed from the parent
+    onClick({
+      chatboxId,
+      senderId,
+      senderName,
+      message,
+    });
+  };
+
+  // Don't render if the notification is not visible
+  if (!isVisible) return null;
+
   return (
-    <div className={`notification ${isCrossed ? 'crossed' : ''}`}>
+    <div
+      className="notification"
+      onClick={handleNotificationClick}
+    >
       <div className="notification-content">
-        <p><strong>{senderId}</strong>: {messageContent}</p>
-        <p>{message}</p>
+        <p>
+          <strong>{senderName}</strong>: {message}
+        </p>
       </div>
       <button className="cross-btn" onClick={handleCrossClick}>
         &#10006; {/* Cross mark symbol */}

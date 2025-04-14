@@ -6,15 +6,18 @@ function Card({ item, userId, userName }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [sellerId, setSellerId] = useState(null);
 
+  // Handle "Contact" button click
   const handleContactClick = () => {
-    console.log("Contact button clicked");
-    setSellerId(item?.sellerId); 
-    setIsChatOpen(true);
+    console.log("Contact button clicked:", { sellerId: item?.sellerId, userId });
+
+    setSellerId(item?.sellerId); // Set the sellerId from the item
+    setIsChatOpen(true); // Open the chat
   };
 
+  // Close the chat
   const closeChat = () => {
     setIsChatOpen(false);
-    setSellerId(null); 
+    setSellerId(null); // Reset sellerId when chat is closed
   };
 
   return (
@@ -35,19 +38,20 @@ function Card({ item, userId, userName }) {
           <p className="price">₹{item?.price}</p>
           <p className="description">{item?.description}</p>
 
+          {/* Contact Button */}
           <button className="contact-btn" onClick={handleContactClick}>
             Contact
           </button>
         </div>
       </div>
 
-      {isChatOpen && (
+      {/* Chat Component */}
+      {isChatOpen && sellerId && (
         <Chat
-          userId={userId}
-          userName={userName} // ✅ Pass userName here
-          sellerId={item?.sellerId}
-          sellerName={item?.sellerName || "Seller"} // Optional but safe
-          onClose={closeChat}
+          userId={userId} // Pass the current user's ID
+          userName={userName} // Pass the current user's name
+          sellerId={item?.sellerId} // Pass the seller's ID
+          onClose={closeChat} // Close chat handler
         />
       )}
     </div>

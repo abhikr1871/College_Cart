@@ -35,7 +35,7 @@ const saveMessage = async ({ senderId, receiverId, message, senderName }) => {
     // Send notification
     await sendNotification({
       toUser: receiverId,
-      fromUser: senderId,
+      fromUser: senderName,
       type: "chat",
       message: `New message from ${senderName}`,
       chatboxId

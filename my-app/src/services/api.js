@@ -72,10 +72,16 @@ export const getNotifications = async (userId) => {
 
 // 2. Mark a notification as read or delete it
 export const deleteNotification = async (notifId) => {
+  if (!notifId) {
+    console.error("❌ Notification ID is undefined");
+    return;
+  }
   try {
-    await API.delete(`/notifications/${notifId}`);
+    await API.delete(`/notifications/${notifId}`); // Backend endpoint to delete a notification
+    console.log(`✅ Notification with ID ${notifId} deleted successfully`);
   } catch (error) {
-    console.error('Error deleting notification:', error);
+    console.error(`❌ Error deleting notification with ID ${notifId}:`, error);
+    throw error;
   }
 };
 

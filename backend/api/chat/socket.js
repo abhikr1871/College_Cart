@@ -46,7 +46,8 @@ function setupWebSocket(server) {
           io.to(receiverSocketId).emit('notification', {
             type: 'chat',
             fromUser: senderName,
-            message: `New message from ${senderName}`,
+            senderId,
+            message: lastMsg.message, 
             chatboxId
           });
         } else {

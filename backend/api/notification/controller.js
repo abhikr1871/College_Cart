@@ -16,7 +16,6 @@ async function saveNotification({ toUser, fromUser, type, message, chatboxId }) 
 
 exports.saveNotification = saveNotification;
 
-// ✅ Express controller - Create notification via API
 exports.createNotification = async (req, res) => {
   try {
     const { toUser, fromUser, type, message, chatboxId } = req.body;
@@ -28,7 +27,6 @@ exports.createNotification = async (req, res) => {
   }
 };
 
-// ✅ Get all notifications for a user
 exports.getNotifications = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -45,7 +43,6 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// ✅ Mark a notification as read
 exports.markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
