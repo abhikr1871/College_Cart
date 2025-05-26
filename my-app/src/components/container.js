@@ -71,7 +71,7 @@ function Container() {
     console.log("🔔 Notification clicked:", notif);
 
     // Validate notification data
-    if (!notif.senderId || !notif.chatboxId) {
+    if (!notif.senderId || !notif.chatboxId || notif.senderName) {
       console.error(" Missing required fields in notification:", notif);
       alert("This notification is incomplete and cannot open the chat.");
       return;

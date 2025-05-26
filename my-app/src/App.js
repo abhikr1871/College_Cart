@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Notification from './components/Notification.js';
 import useSocket from './hooks/useSocket.js';
@@ -11,45 +11,91 @@ import Sell from "./components/pages/Sell.js";
 import PrivateRoute from "./components/privateRoute.js";
 import Profile from './components/pages/Profile.js';
 import Chat from './components/Chat.js';
+import { deleteNotification } from './services/api.js';
 
 function App() {
-  const notifications = useSocket();
-  const [chatDetails, setChatDetails] = useState(null); // Holds chat details (e.g., sellerId, chatboxId)
+  const [chatDetails, setChatDetails] = useState(null);
+  const [visibleNotifications, setVisibleNotifications] = useState([]);
 
-  // Handle notification click
+  const socketNotifications = useSocket();
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+
+  // Merge new socket notifications into visibleNotifications
+  useEffect(() => {
+    if (socketNotifications.length > 0) {
+      setVisibleNotifications((prev) => {
+        const existingIds = new Set(prev.map((n) => n._id));
+        const newOnes = socketNotifications.filter((n) => !existingIds.has(n._id));
+        return [...prev, ...newOnes];
+      });
+    }
+  }, [socketNotifications]);
+
+  // 🟡 Handle notification click
   const handleNotificationClick = (notif) => {
-    console.log("🔔 Notification clicked:", notif);
-
-    // Validate notification data
     if (!notif.chatboxId || !notif.senderId) {
-      console.error("❌ Missing required fields in notification:", notif);
+      console.error("❌ Missing fields in notification:", notif);
       alert("This notification is incomplete and cannot open the chat.");
       return;
     }
 
-    // Set chat details to open the Chat component
+    // 🛑 Prevent reopening if the same chatbox is already open
+    if (chatDetails && chatDetails.chatboxId === notif.chatboxId) {
+      console.log("✅ Chat already open for this chatbox.");
+      return;
+    }
+
+    // 🧠 Reverse sender and receiver from notification
+    // If current user is the receiver, other is sender
+    const isCurrentUserSender = notif.senderId === userId;
+
+    const otherUserId = isCurrentUserSender ? notif.receiverId : notif.senderId;
+    const otherUserName = isCurrentUserSender ? notif.receiverName : notif.senderName;
+
     setChatDetails({
-      sellerId: notif.senderId,
-      sellerName: notif.senderName,
-      chatboxId: notif.chatboxId,
+      sellerId: otherUserId,
+      sellerName: otherUserName,
+      chatboxId: notif.chatboxId
     });
+
+    // Dismiss the clicked notification
+    setVisibleNotifications((prev) =>
+      prev.filter((n) => n._id !== notif._id)
+    );
   };
 
-  // Close the chat
+  // 🗑️ Handle notification dismiss
+  const handleNotificationDismiss = async (notifId) => {
+    setVisibleNotifications((prev) =>
+      prev.filter((n) => n._id !== notifId)
+    );
+
+    try {
+      await deleteNotification(notifId);
+    } catch (error) {
+      console.error("❌ Failed to delete notification from backend:", error);
+    }
+  };
+
   const closeChat = () => setChatDetails(null);
 
   return (
     <BrowserRouter>
-      {/* 🔔 Notification Area */}
+      {/* 🔔 Notifications */}
       <div className="notification-container">
-        {notifications.map((notification, index) => (
+        {visibleNotifications.map((notification) => (
           <Notification
-            key={index}
+            key={notification._id}
+            id={notification._id}
             message={notification.message || notification.messageContent}
             senderId={notification.senderId}
             senderName={notification.senderName}
             chatboxId={notification.chatboxId}
-            onClick={handleNotificationClick} // Pass the click handler
+            receiverId={notification.receiverId}
+            receiverName={notification.receiverName}
+            onClick={handleNotificationClick}
+            onDismiss={handleNotificationDismiss}
           />
         ))}
       </div>
@@ -72,11 +118,11 @@ function App() {
         />
       </Routes>
 
-      {/* Chat Component */}
+      {/* 💬 Chat Popup */}
       {chatDetails && (
         <Chat
-          userId={localStorage.getItem('userId')} // Retrieve userId from localStorage
-          userName={localStorage.getItem('username')} // Retrieve userName from localStorage
+          userId={userId}
+          userName={userName}
           sellerId={chatDetails.sellerId}
           sellerName={chatDetails.sellerName}
           onClose={closeChat}

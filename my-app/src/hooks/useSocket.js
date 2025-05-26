@@ -18,6 +18,7 @@ const useSocket = () => {
       } catch (error) {
         console.error('Failed to fetch stored notifications:', error);
       }
+      
     };
 
     fetchStoredNotifications();

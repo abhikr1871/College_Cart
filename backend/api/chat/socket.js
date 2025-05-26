@@ -1,7 +1,6 @@
 const { Server } = require('socket.io');
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:3000";
-const { saveMessage } = require('./controller'); // saveMessage includes notification
-const Chatbox = require('./model');
+const { saveMessage } = require('./controller');
 
 function setupWebSocket(server) {
   const io = new Server(server, {
@@ -23,11 +22,11 @@ function setupWebSocket(server) {
       console.log(`🔗 User ${userId} connected with socket ID ${socket.id}`);
     });
 
-    socket.on('sendMessage', async ({ senderId, receiverId, message, senderName }) => {
+    socket.on('sendMessage', async ({ senderId, receiverId, message, senderName, receiverName }) => {
       try {
         console.log('📨 sendMessage event received:', { senderId, receiverId, message });
 
-        const chatbox = await saveMessage({ senderId, receiverId, message, senderName });
+        const chatbox = await saveMessage({ senderId, receiverId, message, senderName, receiverName });
         const chatboxId = [senderId, receiverId].sort().join('_');
 
         const receiverSocketId = userSocketMap.get(receiverId.toString());
@@ -39,6 +38,7 @@ function setupWebSocket(server) {
             senderId,
             receiverId,
             senderName,
+            receiverName,
             message: lastMsg.message,
             timestamp: lastMsg.timestamp
           });
@@ -47,7 +47,7 @@ function setupWebSocket(server) {
             type: 'chat',
             fromUser: senderName,
             senderId,
-            message: lastMsg.message, 
+            message: lastMsg.message,
             chatboxId
           });
         } else {

@@ -40,10 +40,15 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
             setChatHistory((prev) => [...prev, newMessage]);
         };
 
-        
         const handleNotification = (data) => {
-            console.log("🔔 Received notification:", data);
-            alert(data.message); // You can replace this with a toast
+            console.log("🔔 Received notification:", data); // Log the entire notification data
+            if (data.messageId) {
+                if (window.confirm(`${data.message}\nMark as read?`)) {
+                    handleNotificationClick(data.messageId);
+                }
+            } else {
+                console.error("Notification data is missing messageId:", data);
+            }
         };
 
         socket.on('receiveMessage', handleReceiveMessage);
@@ -59,30 +64,60 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatHistory]);
 
+    useEffect(() => {
+        if (!userId || !sellerId) return;
+
+        // Emit "markAsRead" when the chatbox is open
+        socket.emit('markAsRead', { chatboxId, userId });
+
+        return () => {
+            // Optionally, handle cleanup if needed
+        };
+    }, [chatboxId, userId]);
+
+    const handleNotificationClick = (messageId) => {
+        if (!messageId) {
+            console.error("❌ Cannot mark notification as read: messageId is undefined");
+            return;
+        }
+
+        // Emit "markAsRead" when the user clicks the notification
+        socket.emit('markAsRead', { chatboxId, userId, messageId });
+        alert("Notification marked as read!");
+    };
+
     const handleSendMessage = async () => {
+        console.log(sellerName);
         if (!message.trim()) return;
 
         const newMessage = {
             senderId: userId,
             receiverId: String(sellerId),
             senderName: String(userName),
+            receiverName: String(sellerName), // <-- Added receiverName
             message,
             timestamp: new Date(),
             read: false,
         };
 
-        console.log("📤 Emitting sendMessage:", newMessage);
+        console.log("\uD83D\uDCE4 Emitting sendMessage:", newMessage);
         socket.emit('sendMessage', newMessage);
 
         setChatHistory((prev) => [...prev, newMessage]);
         setMessage('');
     };
 
+
+    const handleCloseChat = () => {
+        socket.emit('markAsRead', { chatboxId, userId });
+        onClose();
+    };
+
     return (
         <div className="chat-container">
             <div className="chat-header">
-                <h2>Chat with {sellerName || sellerId}</h2>
-                <button onClick={onClose}>Close</button>
+                <h2>Chat with {sellerName}</h2>
+                <button onClick={handleCloseChat}>Close</button>
             </div>
 
             <div className="chat-history">

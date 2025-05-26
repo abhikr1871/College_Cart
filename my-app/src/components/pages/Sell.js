@@ -9,6 +9,7 @@ const Sell = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
+  const userName = localStorage.getItem("userName");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +38,7 @@ const Sell = () => {
     formData.append('description', description);
     formData.append('price', price);
     formData.append('image', image);
+    formData.append('sellerName',userName);
     formData.append('collegeName', collegeName); // Add collegeName to the form data
 
     try {

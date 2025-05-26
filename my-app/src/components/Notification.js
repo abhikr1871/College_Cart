@@ -1,47 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Notification.css';
 
-const Notification = ({ message, senderId, senderName, chatboxId, onClick }) => {
+const Notification = ({ id, message, senderId, senderName, chatboxId, onClick, onDismiss , chatopened}) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  // Handle cross mark click to dismiss the notification
-  const handleCrossClick = (e) => {
-    e.stopPropagation(); // Prevent triggering the notification click
+  // Auto-dismiss after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleDismiss();
+    }, 5000);
+
+    return () => clearTimeout(timer); // Cleanup
+  }, []);
+
+  const handleDismiss = () => {
     setIsVisible(false);
+    if (onDismiss && id) {
+      onDismiss(id); // inform parent (to mark as read or remove from state)
+    }
   };
 
-  // Handle notification click
+  const handleCrossClick = (e) => {
+    e.stopPropagation();
+    handleDismiss();
+  };
+
   const handleNotificationClick = () => {
     if (!chatboxId || !senderId) {
-      console.error("❌ Missing required fields in notification:", { chatboxId, senderId });
       alert("This notification is incomplete and cannot open the chat.");
       return;
     }
+    if(!chatopened){
 
-    // Trigger the onClick handler passed from the parent
-    onClick({
-      chatboxId,
-      senderId,
-      senderName,
-      message,
-    });
+      onClick?.({ chatboxId, senderId, senderName, message });
+    }
+      handleDismiss(); // dismiss when clicked
   };
 
-  // Don't render if the notification is not visible
   if (!isVisible) return null;
 
   return (
-    <div
-      className="notification"
-      onClick={handleNotificationClick}
-    >
+    <div className="notification" onClick={handleNotificationClick}>
       <div className="notification-content">
         <p>
           <strong>{senderName}</strong>: {message}
         </p>
       </div>
       <button className="cross-btn" onClick={handleCrossClick}>
-        &#10006; {/* Cross mark symbol */}
+        &#10006;
       </button>
     </div>
   );

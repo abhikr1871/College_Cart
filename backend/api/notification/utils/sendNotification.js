@@ -1,27 +1,39 @@
-const Notification = require("../model");
+const ChatNotification = require("../model");
+const mongoose = require("mongoose");
 
 /**
- * Creates and stores a notification in the database.
- * @param {Object} param0 
- * @param {String} param0.toUser - Recipient user ID
- * @param {String} param0.fromUser - Sender user ID
- * @param {String} param0.type - Notification type ('chat', 'like', 'comment')
- * @param {String} param0.message - Notification message
- * @param {String} [param0.chatboxId] - Optional chatbox ID
- * @returns {Promise<Notification|null>}
+ * Creates and stores a notification in the ChatNotification model.
+ * @param {Object} params
+ * @param {String} params.toUser - Recipient user ID.
+ * @param {String} params.fromUser - Sender user ID.
+ * @param {String} params.message - Notification message.
+ * @param {String} params.chatboxId - Chatbox ID (should be generated consistently).
+ * @param {Date} [params.createdAt=new Date()] - Optional creation timestamp.
+ * @param {Boolean} [params.read=false] - Read status.
+ * @returns {Promise<Object|null>} - The new notification.
  */
-const sendNotification = async ({ toUser, fromUser, type, message, chatboxId }) => {
+const sendNotification = async ({ toUser, fromUser, message, chatboxId, createdAt = new Date(), read = false }) => {
   try {
-    const notification = new Notification({
+    const notifId = new mongoose.Types.ObjectId().toString();
+    const newNotification = {
+      notifId,
       toUser,
       fromUser,
-      type,
       message,
-      chatboxId,
-    });
+      read,
+      createdAt
+    };
 
-    const saved = await notification.save();
-    return saved;
+    const updated = await ChatNotification.findOneAndUpdate(
+      { chatboxId },
+      {
+        $setOnInsert: { users: [toUser, fromUser] },
+        $push: { notifications: newNotification }
+      },
+      { upsert: true, new: true }
+    );
+
+    return newNotification;
   } catch (err) {
     console.error("❌ Error sending notification:", err);
     return null;

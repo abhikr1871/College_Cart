@@ -4,6 +4,7 @@ const messageSchema = new mongoose.Schema({
   message: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   senderName: { type: String, required: true },
+  receiverName: { type: String, required: true },
   read: { type: Boolean, default: false }
 });
 

@@ -49,6 +49,7 @@ const createItem = async (req, res) => {
       description,
       price,
       sellerId :userId,
+      sellerName: req.user?.name, // Assuming the user's name is available in the request
       collegeName: userCollege
     });
 

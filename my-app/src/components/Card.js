@@ -5,12 +5,14 @@ import Chat from "./Chat";
 function Card({ item, userId, userName }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [sellerId, setSellerId] = useState(null);
+  const [sellerName, setSellerName] = useState("");
 
   // Handle "Contact" button click
   const handleContactClick = () => {
     console.log("Contact button clicked:", { sellerId: item?.sellerId, userId });
 
     setSellerId(item?.sellerId); // Set the sellerId from the item
+    setSellerName(item?.sellerName || ""); // Set the sellerName from the item
     setIsChatOpen(true); // Open the chat
   };
 
@@ -51,6 +53,7 @@ function Card({ item, userId, userName }) {
           userId={userId} // Pass the current user's ID
           userName={userName} // Pass the current user's name
           sellerId={item?.sellerId} // Pass the seller's ID
+          sellerName={item?.sellerName} // Pass the seller's name
           onClose={closeChat} // Close chat handler
         />
       )}
