@@ -1,72 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import FileBase from "react-file-base64";
-import Header from "../header";
-import './Sell.css';
+import "./Sell.css";
+import Sidebar from "../Sidebar";
+import { Menu } from "lucide-react";
 
 const Sell = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const userName = localStorage.getItem("userName");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const storedName = localStorage.getItem("userName");
+    setUserName(storedName);
+  }, []);
+
+  const handleNotificationClick = (notif) => {
+    console.log("Clicked Notification", notif);
+    // Optional: Navigate or handle based on notification
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Retrieve token from local storage
     const token = localStorage.getItem("token");
-
     if (!token) {
       alert("Please log in to create an item");
       return;
     }
 
-    // Decode the token to get the user info (including collegeName)
-    const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-
-    const collegeName = decodedToken.collegeName;  // Extract collegeName
-
-    if (!collegeName) {
-      alert("User college information is missing");
+    let collegeName = "";
+    try {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      collegeName = decodedToken.collegeName || "";
+    } catch {
+      alert("Invalid token");
       return;
     }
 
-    // Prepare form data
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('image', image);
-    formData.append('sellerName',userName);
-    formData.append('collegeName', collegeName); // Add collegeName to the form data
+    const payload = {
+      title,
+      description,
+      price,
+      image,
+      sellerName: userName,
+      collegeName,
+    };
 
     try {
-      const response = await axios.post('http://localhost:4000/api/items/create', formData, {
+      await axios.post("http://localhost:4000/api/items/create", payload, {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Send token for authentication
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Item created successfully:', response.data);
-      alert('Item created successfully!');
-      // Reset the form
+
+      alert("Item created successfully!");
       setTitle("");
       setDescription("");
       setPrice("");
       setImage(null);
     } catch (error) {
-      console.error('Error uploading item:', error.response ? error.response.data : error.message);
-      alert('Error creating item!');
+      console.error("Error uploading item:", error.response?.data || error.message);
+      alert("Error creating item!");
     }
   };
 
   return (
-    <div>
-      <Header />
-      <div className="sell-container">
+    <div className="sell-page">
+      <button className="hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        <Menu size={26} />
+      </button>
+
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        notifications={notifications}
+        onNotificationClick={handleNotificationClick}
+        userName={userName}
+      />
+
+      <div className="sell-container" style={{ marginLeft: "280px" }}>
         <div className="sell-content">
-          <form onSubmit={handleSubmit} className="sell-form" encType="multipart/form-data">
+          <form onSubmit={handleSubmit} className="sell-form">
             <h2>Enlist Your Item</h2>
             <div>
               <label>Title:</label>
@@ -95,6 +115,7 @@ const Sell = () => {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
+                min="0"
               />
             </div>
             <div>
@@ -105,7 +126,9 @@ const Sell = () => {
                 onDone={({ base64 }) => setImage(base64)}
               />
             </div>
-            <button type="submit" className="sell-button">Submit</button>
+            <button type="submit" className="sell-button">
+              Submit
+            </button>
           </form>
         </div>
       </div>

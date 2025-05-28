@@ -1,88 +1,163 @@
-/* Reset and base styles */
+/* === Reset and base styles === */
 * {
-    margin: 0px;
-    padding: 0px;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+body {
+  background-color: #f9fafb;
+}
+
+/* === Header Styles === */
 header {
-    width: 100%;
-    background-color: #ffffff;
-    padding: 10px 0;
-    border-bottom: 2px solid #e0e0e0;
-    border-color: #E0B0FF;
-    border-radius: 4px;
+  width: 100%;
+  background-color: #ffffff;
+  padding: 14px 0;
+  border-bottom: 1px solid #d1d5db;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
+/* === Navbar Container === */
 .navbar {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
+/* === Logo === */
 .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #5e4ae3;
+  font-size: 26px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  user-select: none;
 }
 
+/* === Navigation Links === */
 .nav-links {
-    list-style-type: none;
-    display: flex;
-    gap: 20px;
+  list-style: none;
+  display: flex;
+  gap: 24px;
+  align-items: center;
 }
 
 .nav-links li a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: color 0.3s ease;
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.3s ease;
 }
 
 .nav-links li a:hover {
-    color: #5e4ae3;
+  color: #2563eb;
 }
 
+/* === Action Buttons (Login, Signup, etc.) === */
 .actions {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .action-btn {
-    padding: 8px 15px;
-    border: 1px solid #ff4081;
-    background-color: #ff4081;
-    color: #ffffff;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 8px 16px;
+  border: none;
+  background-color: #2563eb;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .action-btn:hover {
-    background-color: #e03570;
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
 }
-.action-btn {
-    text-decoration: none; /* Removes underline */
-}
+
+/* === Notification Icon === */
 .notification-icon {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    margin-right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-icon svg {
+  color: #2563eb;
+  transition: transform 0.2s ease;
+}
+
+.notification-icon:hover svg {
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+/* === Responsive for Mobile === */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  .notification-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 9px;
-    height: 9px;
-    background-color: red;
-    border-radius: 50%;
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-left: 0;
   }
-  
+
+  .actions {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+}
+
+/* === Hamburger Menu Icon === */
+.menu-icon {
+  font-size: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2563eb;
+  margin-right: 16px;
+  display: none; /* show only on mobile */
+}
+
+/* Show menu icon on smaller screens */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-links {
+    display: none; /* Optional: hide main nav links on mobile */
+  }
+}

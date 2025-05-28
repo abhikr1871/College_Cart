@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Header from '../header';
 import './Home.css';
 import Sidebar from '../Sidebar.js';
 import { Menu } from "lucide-react";
@@ -15,7 +14,6 @@ function Home() {
     const storedName = localStorage.getItem("userName");
     setUserName(storedName);
 
-    // ✅ FIX: add transports: ['websocket'] to avoid polling issues
     const socket = io("http://localhost:4000", {
       transports: ['websocket'],
     });
@@ -27,7 +25,7 @@ function Home() {
     socket.on("notification", (notif) => {
       console.log("Received notification:", notif);
       setNotifications(prev => [notif, ...prev]);
-      setUnreadCount(prev => prev + 1); // increment unread count
+      setUnreadCount(prev => prev + 1);
     });
 
     return () => {
@@ -41,18 +39,16 @@ function Home() {
   };
 
   const handleBellClick = () => {
-    setSidebarOpen(true);         // open sidebar
-    setUnreadCount(0);            // clear badge
+    setSidebarOpen(true);
+    setUnreadCount(0);
   };
 
   return (
     <div className="home_container">
-      {/* Hamburger for full sidebar toggle */}
       <button className="hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
         <Menu size={26} />
       </button>
 
-      {/* Sidebar with notifications */}
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -61,13 +57,7 @@ function Home() {
         userName={userName}
       />
 
-      {/* Main */}
       <div className="main_content">
-        <Header
-          onNotificationClick={handleBellClick}
-          showNotificationBadge={unreadCount > 0}
-        />
-
         <div className="centered-content">
           <div className="content">
             <h1>Welcome to College Cart</h1>

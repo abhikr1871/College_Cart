@@ -11,11 +11,19 @@ import Sell from "./components/pages/Sell.js";
 import PrivateRoute from "./components/privateRoute.js";
 import Profile from './components/pages/Profile.js';
 import Chat from './components/Chat.js';
+
+import Header from "./components/header";   // <-- Add this
+import Sidebar from "./components/Sidebar"; // <-- Add this
+
 import { deleteNotification } from './services/api.js';
 
 function App() {
   const [chatDetails, setChatDetails] = useState(null);
   const [visibleNotifications, setVisibleNotifications] = useState([]);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);  // <-- Sidebar state
+
+  const toggleSidebar = () => setSidebarOpen(prev => !prev); // <-- Sidebar toggle
 
   const socketNotifications = useSocket();
   const userId = localStorage.getItem('userId');
@@ -82,6 +90,16 @@ function App() {
 
   return (
     <BrowserRouter>
+      {/* Add Header & Sidebar components */}
+      <Header
+        toggleSidebar={toggleSidebar}
+        // optionally pass other props, e.g. notifications, badge, etc.
+      />
+      <Sidebar
+        isOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+
       {/* 🔔 Notifications */}
       <div className="notification-container">
         {visibleNotifications.map((notification) => (

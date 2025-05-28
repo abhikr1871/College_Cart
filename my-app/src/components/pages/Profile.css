@@ -1,0 +1,133 @@
+/* Light blue background for the entire page */
+.profile-container {
+  background: #e0f2ff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* White card with soft edges and shadow */
+.profile-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  position: relative;
+}
+
+/* Profile image style */
+.profile-photo-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Camera upload icon */
+.photo-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  padding: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Profile fields */
+.profile-field {
+  margin: 10px 0;
+  text-align: left;
+}
+
+.profile-field label {
+  display: block;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.profile-field input,
+.profile-field textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+}
+
+/* Action buttons */
+.profile-actions {
+  margin-top: 20px;
+}
+
+.edit-btn,
+.save-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  color: white;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Message box */
+.profile-message {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+/* Close button (top-right X) */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  color: #ff4b2b;
+  transform: scale(1.2);
+}

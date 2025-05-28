@@ -1,65 +1,138 @@
+/* Sidebar styles */
 .sidebar {
-    width: 260px;
-    height: 100vh;
-    background-color: #f3f4f6;
-    padding: 16px;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-    position: fixed;
-    top: 0;
-    left: -260px;
-    overflow-y: auto;
-    transition: left 0.3s ease;
-    z-index: 1000;
-  }
-  
-  .sidebar.open {
-    left: 0;
-  }
-  
-  .sidebar-profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .user-circle {
-    font-size: 1.5rem;
-  }
-  
-  .username {
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-  
-  .sidebar-notifications {
-    margin-top: 20px;
-  }
-  
-  .notification-item {
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .notification-item:hover {
-    background-color: #e0f2fe;
-  }
-  
-  .no-notif {
-    font-style: italic;
-    color: #666;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    float: right;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
-  
+  width: 280px;
+  height: 100vh;
+  background-color: #f9fafb;
+  padding: 20px 16px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  position: fixed;
+  top: 0;
+  left: -280px;
+  overflow-y: auto;
+  transition: left 0.3s ease-in-out;
+  z-index: 1100;  /* increased z-index */
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+/* Sample header styles - ensure lower z-index */
+header {
+  position: relative;  /* or fixed/sticky, depending on your layout */
+  z-index: 1000;       /* lower than sidebar */
+  background-color: #fff; /* example */
+  width: 100%;
+  /* other header styles */
+}
+
+/* ...rest of your sidebar CSS unchanged */
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.user-circle {
+  font-size: 1.6rem;
+  background: #e5e7eb;
+  border-radius: 50%;
+  padding: 8px;
+  color: #374151;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.sidebar-notifications {
+  margin-top: 24px;
+}
+
+.sidebar-notifications h4 {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.notification-item {
+  background-color: #ffffff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+  transition: background-color 0.2s ease;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-item:hover {
+  background-color: #e0f2fe;
+}
+
+.notification-item b {
+  color: #1e3a8a;
+  margin-right: 4px;
+}
+
+.no-notif {
+  font-style: italic;
+  color: #6b7280;
+  padding: 12px 0;
+  text-align: center;
+}
+
+.mark-all {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mark-all:hover {
+  background-color: #1d4ed8;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #111827;
+}
+
+.cross-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 1rem;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.cross-btn:hover {
+  color: #ef4444;
+}
