@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Header from "../header";
 import "./Login.css";
-import { login, getNotifications } from "../../services/api"; // ✅ Use service for notifications
+import { login, getNotifications, getUserChatboxes } from "../../services/api";
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../../context/Authcontext";
 import socket from "../../services/socket";
@@ -13,7 +12,6 @@ function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
@@ -44,18 +42,32 @@ function Login() {
         setPassword("");
         socket.emit("userConnected", userId);
 
-        // Notification fetch (with error-safe try block)
+        // Fetch notifications and chatboxes
         try {
-          const data = await getNotifications(userId);
-          if (Array.isArray(data) && data.length > 0) {
-            setNotifications(data);
-            toast.info(`🔔 You have ${data.length} new message(s)! Click to view.`, {
+          const [notifData, chatboxes] = await Promise.all([
+            getNotifications(userId),
+            getUserChatboxes(userId)
+          ]);
+
+          // Handle notifications
+          if (Array.isArray(notifData) && notifData.length > 0) {
+            setNotifications(notifData);
+            toast.info(`🔔 You have ${notifData.length} new message(s)! Click to view.`, {
               autoClose: false,
               onClick: () => navigate('/home?showNotifications=true'),
             });
           }
-        } catch (notifError) {
-          console.warn("📭 Notification fetch failed:", notifError.message);
+
+          // Handle unread messages
+          const totalUnread = chatboxes.reduce((sum, chat) => sum + chat.unreadCount, 0);
+          if (totalUnread > 0) {
+            toast.info(`💬 You have ${totalUnread} unread message(s) in your chats!`, {
+              autoClose: false,
+              onClick: () => navigate('/home?showChats=true'),
+            });
+          }
+        } catch (error) {
+          console.warn("📭 Failed to fetch notifications or chatboxes:", error.message);
         }
 
         // Navigate only once
@@ -71,7 +83,6 @@ function Login() {
 
   return (
     <div className="login-container">
-      <Header />
       <div className="login-content">
         <div className="login-form">
           <h2>Welcome to College Cart</h2>

@@ -47,6 +47,16 @@ export const getMessages = async (chatboxId) => {
   }
 };
 
+export const getUserChatboxes = async (userId) => {
+  try {
+    const response = await API.get(`/chat/chatboxes/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user chatboxes:', error);
+    return [];
+  }
+};
+
 export const getChatboxId = async (senderId, receiverId) => {
   try {
     const response = await API.get(`/chat/chatbox/${senderId}/${receiverId}`);
@@ -108,6 +118,7 @@ export default {
   getAllUsers,
   getItems,
   getMessages,
+  getUserChatboxes,
   getChatboxId,
   getNotifications,
   markNotificationAsRead,

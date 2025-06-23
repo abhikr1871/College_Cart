@@ -66,13 +66,13 @@ function Container() {
     };
   }, [userId]);
 
-  //Handle notification click
+  // Handle notification click
   const handleNotificationClick = (notif) => {
     console.log("🔔 Notification clicked:", notif);
 
     // Validate notification data
-    if (!notif.senderId || !notif.chatboxId || notif.senderName) {
-      console.error(" Missing required fields in notification:", notif);
+    if (!notif.senderId || !notif.senderName) {
+      console.error("❌ Missing required fields in notification:", notif);
       alert("This notification is incomplete and cannot open the chat.");
       return;
     }
@@ -80,9 +80,27 @@ function Container() {
     // Set chat details and close the sidebar
     setChatDetails({
       sellerId: notif.senderId,
-      sellerName: notif.senderName ,
+      sellerName: notif.senderName
     });
     setSidebarOpen(false); // Close sidebar when chat opens
+  };
+
+  // Handle chat selection from sidebar
+  const handleChatSelect = (contact) => {
+    console.log("💬 Chat selected:", contact);
+
+    // Validate contact data
+    if (!contact.senderId || !contact.senderName) {
+      console.error("❌ Missing required fields in contact:", contact);
+      alert("Cannot open this chat due to missing information.");
+      return;
+    }
+
+    // Set chat details
+    setChatDetails({
+      sellerId: contact.senderId,
+      sellerName: contact.senderName
+    });
   };
 
   // Close the chat
@@ -97,6 +115,7 @@ function Container() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onNotificationClick={handleNotificationClick}
+        onChatSelect={handleChatSelect}
       />
 
       {/* Product Cards */}

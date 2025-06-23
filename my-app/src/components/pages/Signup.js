@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Signup.css";
-import Header from "../header";
 import { signup } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/Authcontext";
@@ -75,69 +74,66 @@ const SignUp = () => {
   };
 
   return (
-    <div>
-      <Header />
-      <div className="signup-container">
-        <div className="signup-content">
-          <div className="signup-form">
-            <h2>Welcome to College Cart</h2>
-            <h2>Register</h2>
-            <input
-              className="input-box"
-              type="text"
-              value={name}
-              required
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-            />
-            <input
-              className="input-box"
-              type="text"
-              value={collegeName}
-              required
-              onChange={handleCollegeNameChange}
-              placeholder="College Name"
-            />
-            {suggestions.length > 0 && (
-              <ul className="suggestions-list" ref={suggestionsRef}>
-                {suggestions.map((college, index) => (
-                  <li key={index} onClick={() => handleSuggestionClick(college.name)}>
-                    {college.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <input
-              className="input-box"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
-            <input
-              className="input-box"
-              type="password"
-              value={password}
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Set Password"
-            />
-            <input
-              className="input-box"
-              type="password"
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm Password"
-            />
-            <button type="button" onClick={handleSignup} className="signup-button">
-              Sign Up
-            </button>
-          </div>
-          <div className="illustration">
-            <img src="/assets/signup.jpeg" alt="Isometric Illustration" />
-          </div>
+    <div className="signup-container">
+      <div className="signup-content">
+        <div className="signup-form">
+          <h2>Welcome to College Cart</h2>
+          <h2>Register</h2>
+          <input
+            className="input-box"
+            type="text"
+            value={name}
+            required
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+          />
+          <input
+            className="input-box"
+            type="text"
+            value={collegeName}
+            required
+            onChange={handleCollegeNameChange}
+            placeholder="College Name"
+          />
+          {suggestions.length > 0 && (
+            <ul className="suggestions-list" ref={suggestionsRef}>
+              {suggestions.map((college, index) => (
+                <li key={index} onClick={() => handleSuggestionClick(college.name)}>
+                  {college.name}
+                </li>
+              ))}
+            </ul>
+          )}
+          <input
+            className="input-box"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+          <input
+            className="input-box"
+            type="password"
+            value={password}
+            required
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Set Password"
+          />
+          <input
+            className="input-box"
+            type="password"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm Password"
+          />
+          <button onClick={handleSignup} className="signup-button">
+            Sign Up
+          </button>
+        </div>
+        <div className="illustration">
+          <img src="/assets/signup.jpeg" alt="Isometric Illustration" />
         </div>
       </div>
     </div>

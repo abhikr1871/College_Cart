@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Notification from './components/Notification.js';
 import useSocket from './hooks/useSocket.js';
+import Sidebar from './components/Sidebar.js';
 
 import Home from "./components/pages/Home.js";
 import Login from "./components/pages/Login.js";
@@ -12,10 +13,12 @@ import PrivateRoute from "./components/privateRoute.js";
 import Profile from './components/pages/Profile.js';
 import Chat from './components/Chat.js';
 import { deleteNotification } from './services/api.js';
+import Header from './components/header.js';
 
 function App() {
   const [chatDetails, setChatDetails] = useState(null);
   const [visibleNotifications, setVisibleNotifications] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const socketNotifications = useSocket();
   const userId = localStorage.getItem('userId');
@@ -32,7 +35,6 @@ function App() {
     }
   }, [socketNotifications]);
 
-  // 🟡 Handle notification click
   const handleNotificationClick = (notif) => {
     if (!notif.chatboxId || !notif.senderId) {
       console.error("❌ Missing fields in notification:", notif);
@@ -40,32 +42,25 @@ function App() {
       return;
     }
 
-    // 🛑 Prevent reopening if the same chatbox is already open
+    // Prevent reopening if the same chatbox is already open
     if (chatDetails && chatDetails.chatboxId === notif.chatboxId) {
       console.log("✅ Chat already open for this chatbox.");
       return;
     }
 
-    // 🧠 Reverse sender and receiver from notification
-    // If current user is the receiver, other is sender
-    const isCurrentUserSender = notif.senderId === userId;
-
-    const otherUserId = isCurrentUserSender ? notif.receiverId : notif.senderId;
-    const otherUserName = isCurrentUserSender ? notif.receiverName : notif.senderName;
-
+    // Set up chat details
     setChatDetails({
-      sellerId: otherUserId,
-      sellerName: otherUserName,
+      userId: userId,
+      userName: userName,
+      sellerId: notif.senderId,
+      sellerName: notif.senderName,
       chatboxId: notif.chatboxId
     });
 
-    // Dismiss the clicked notification
-    setVisibleNotifications((prev) =>
-      prev.filter((n) => n._id !== notif._id)
-    );
+    // Close sidebar after opening chat
+    setIsSidebarOpen(false);
   };
 
-  // 🗑️ Handle notification dismiss
   const handleNotificationDismiss = async (notifId) => {
     setVisibleNotifications((prev) =>
       prev.filter((n) => n._id !== notifId)
@@ -82,25 +77,19 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* 🔔 Notifications */}
-      <div className="notification-container">
-        {visibleNotifications.map((notification) => (
-          <Notification
-            key={notification._id}
-            id={notification._id}
-            message={notification.message || notification.messageContent}
-            senderId={notification.senderId}
-            senderName={notification.senderName}
-            chatboxId={notification.chatboxId}
-            receiverId={notification.receiverId}
-            receiverName={notification.receiverName}
-            onClick={handleNotificationClick}
-            onDismiss={handleNotificationDismiss}
-          />
-        ))}
-      </div>
+      <Header 
+        onNotificationClick={() => setIsSidebarOpen(true)}
+        showNotificationBadge={visibleNotifications.length > 0}
+      />
+      
+      <Sidebar
+        userName={userName}
+        notifications={visibleNotifications}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onNotificationClick={handleNotificationClick}
+      />
 
-      {/* 🧭 Routes */}
       <Routes>
         <Route index element={<Home />} />
         <Route path="/Home" element={<Home />} />
@@ -118,11 +107,10 @@ function App() {
         />
       </Routes>
 
-      {/* 💬 Chat Popup */}
       {chatDetails && (
         <Chat
-          userId={userId}
-          userName={userName}
+          userId={chatDetails.userId}
+          userName={chatDetails.userName}
           sellerId={chatDetails.sellerId}
           sellerName={chatDetails.sellerName}
           onClose={closeChat}

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import socket from '../services/socket';
 import api from '../services/api';
 import { getUserId } from '../context/Authcontext';
 
-const useSocket = () => {
+const useSocket = (onNewNotification) => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
@@ -14,29 +14,55 @@ const useSocket = () => {
     const fetchStoredNotifications = async () => {
       try {
         const stored = await api.getNotifications(userId);
-        setNotifications(stored || []);
+        if (Array.isArray(stored)) {
+          setNotifications(stored);
+        }
       } catch (error) {
         console.error('Failed to fetch stored notifications:', error);
       }
-      
     };
 
     fetchStoredNotifications();
 
+    // Ensure socket is connected
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     // Listen for real-time notification
-    socket.on('notification', (notif) => {
-      setNotifications((prev) => [...prev, notif]);
-    });
+    const handleNewNotification = (notif) => {
+      console.log("Received new notification:", notif);
+      setNotifications(prev => {
+        // Check if notification already exists
+        const exists = prev.some(n => n._id === notif._id);
+        if (exists) return prev;
+        
+        // Call the callback if provided
+        if (onNewNotification) {
+          onNewNotification(notif);
+        }
+        
+        return [notif, ...prev];
+      });
+    };
+
+    socket.on('notification', handleNewNotification);
 
     // Let backend know this user is online
     socket.emit('userConnected', userId);
+    console.log("Emitted userConnected for userId:", userId);
 
     return () => {
-      socket.off('notification');
+      socket.off('notification', handleNewNotification);
     };
+  }, [onNewNotification]);
+
+  // Add function to remove notification
+  const removeNotification = useCallback((notifId) => {
+    setNotifications(prev => prev.filter(n => n._id !== notifId));
   }, []);
 
-  return notifications;
+  return { notifications, removeNotification };
 };
 
 export default useSocket;

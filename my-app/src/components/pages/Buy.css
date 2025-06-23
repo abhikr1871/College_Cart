@@ -4,4 +4,5 @@
     align-items: center;
     min-height: 100vh;
     background-color: #f3f8ff;
+    padding-top: 80px; /* Add padding to account for fixed header */
 }

@@ -1,65 +1,357 @@
 .sidebar {
-    width: 260px;
-    height: 100vh;
-    background-color: #f3f4f6;
-    padding: 16px;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-    position: fixed;
-    top: 0;
-    left: -260px;
-    overflow-y: auto;
-    transition: left 0.3s ease;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: #f8fafc;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-button.active {
+  background: #5e4ae3;
+  color: white;
+}
+
+.tab-button:hover:not(.active) {
+  background: #f1f5f9;
+}
+
+.notification-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.sidebar-profile {
+  padding: 20px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-circle {
+  font-size: 1.75rem;
+  background: #5e4ae3;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.username {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1.1rem;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Notifications Section */
+.sidebar-notifications {
+  padding: 16px;
+}
+
+.no-notifications, .no-chats {
+  text-align: center;
+  padding: 40px 20px;
+  color: #718096;
+}
+
+.no-notifications p, .no-chats p {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.no-notifications small, .no-chats small {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.notification-item {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.notification-header strong {
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.notification-time {
+  color: #718096;
+  font-size: 0.8rem;
+}
+
+.notification-message {
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dismiss-btn:hover {
+  background: #f7fafc;
+  color: #718096;
+}
+
+/* Chats Section */
+.sidebar-chats {
+  padding: 16px;
+}
+
+.chat-contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.chat-contact:hover {
+  transform: translateX(4px);
+  background: #f7fafc;
+}
+
+.contact-avatar {
+  width: 40px;
+  height: 40px;
+  background: #5e4ae3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
+
+.contact-info {
+  flex: 1;
+  overflow: hidden;
+  padding-right: 60px;
+}
+
+.contact-info strong {
+  display: block;
+  color: #2d3748;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.contact-info small {
+  color: #718096;
+  font-size: 0.85rem;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.last-message-time {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #718096;
+  font-size: 0.75rem;
+}
+
+.unread-count {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: #5e4ae3;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #718096;
+}
+
+.loading-state p {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loading-state p::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid #5e4ae3;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
-  
-  .sidebar.open {
-    left: 0;
-  }
-  
-  .sidebar-profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .user-circle {
-    font-size: 1.5rem;
-  }
-  
-  .username {
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-  
-  .sidebar-notifications {
-    margin-top: 20px;
-  }
-  
-  .notification-item {
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .notification-item:hover {
-    background-color: #e0f2fe;
-  }
-  
-  .no-notif {
-    font-style: italic;
-    color: #666;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    float: right;
-    margin-bottom: 10px;
-    cursor: pointer;
-  }
+}
+
+.error-state p {
+  color: #e53e3e;
+  margin-bottom: 16px;
+}
+
+.error-state button {
+  background: #5e4ae3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.error-state button:hover {
+  background: #4a3ac3;
+}
+
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
   
