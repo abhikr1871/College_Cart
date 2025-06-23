@@ -7,6 +7,9 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isTyping, setIsTyping] = useState(false);
+    const [sellerStatus, setSellerStatus] = useState('offline');
+    const [typingTimeout, setTypingTimeout] = useState(null);
 
     const chatboxId = [userId, sellerId].sort().join('_');
     const chatEndRef = useRef(null);
@@ -40,22 +43,47 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
             setChatHistory((prev) => [...prev, newMessage]);
         };
 
+        const handleMessageStatus = (status) => {
+            console.log("📤 Message status update:", status);
+            setChatHistory((prev) => 
+                prev.map(msg => 
+                    msg._id === status.messageId 
+                        ? { ...msg, status: status.status } 
+                        : msg
+                )
+            );
+        };
+
+        const handleUserTyping = ({ senderId, isTyping }) => {
+            if (senderId === sellerId) {
+                setIsTyping(isTyping);
+            }
+        };
+
+        const handleUserStatus = ({ userId: statusUserId, status }) => {
+            if (statusUserId === sellerId) {
+                setSellerStatus(status);
+            }
+        };
+
         const handleNotification = (data) => {
-            console.log("🔔 Received notification:", data); // Log the entire notification data
+            console.log("🔔 Received notification:", data);
             if (data.messageId) {
-                if (window.confirm(`${data.message}\nMark as read?`)) {
-                    handleNotificationClick(data.messageId);
-                }
-            } else {
-                console.error("Notification data is missing messageId:", data);
+                socket.emit('markAsRead', { chatboxId, userId, messageId: data.messageId });
             }
         };
 
         socket.on('receiveMessage', handleReceiveMessage);
+        socket.on('messageStatus', handleMessageStatus);
+        socket.on('userTyping', handleUserTyping);
+        socket.on('userStatusChanged', handleUserStatus);
         socket.on('notification', handleNotification);
 
         return () => {
             socket.off('receiveMessage', handleReceiveMessage);
+            socket.off('messageStatus', handleMessageStatus);
+            socket.off('userTyping', handleUserTyping);
+            socket.off('userStatusChanged', handleUserStatus);
             socket.off('notification', handleNotification);
         };
     }, [chatboxId, userId, sellerId]);
@@ -64,59 +92,62 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chatHistory]);
 
-    useEffect(() => {
-        if (!userId || !sellerId) return;
-
-        // Emit "markAsRead" when the chatbox is open
-        socket.emit('markAsRead', { chatboxId, userId });
-
-        return () => {
-            // Optionally, handle cleanup if needed
-        };
-    }, [chatboxId, userId]);
-
-    const handleNotificationClick = (messageId) => {
-        if (!messageId) {
-            console.error("❌ Cannot mark notification as read: messageId is undefined");
-            return;
+    const handleTyping = () => {
+        socket.emit('typing', { senderId: userId, receiverId: sellerId, isTyping: true });
+        
+        if (typingTimeout) {
+            clearTimeout(typingTimeout);
         }
-
-        // Emit "markAsRead" when the user clicks the notification
-        socket.emit('markAsRead', { chatboxId, userId, messageId });
-        alert("Notification marked as read!");
+        
+        setTypingTimeout(setTimeout(() => {
+            socket.emit('typing', { senderId: userId, receiverId: sellerId, isTyping: false });
+        }, 2000));
     };
 
     const handleSendMessage = async () => {
-        console.log(sellerName);
         if (!message.trim()) return;
 
         const newMessage = {
             senderId: userId,
             receiverId: String(sellerId),
             senderName: String(userName),
-            receiverName: String(sellerName), // <-- Added receiverName
+            receiverName: String(sellerName),
             message,
             timestamp: new Date(),
-            read: false,
+            status: 'sending',
         };
 
-        console.log("\uD83D\uDCE4 Emitting sendMessage:", newMessage);
+        console.log("📤 Emitting sendMessage:", newMessage);
         socket.emit('sendMessage', newMessage);
 
         setChatHistory((prev) => [...prev, newMessage]);
         setMessage('');
     };
 
-
     const handleCloseChat = () => {
         socket.emit('markAsRead', { chatboxId, userId });
         onClose();
     };
 
+    const getMessageStatus = (status) => {
+        switch(status) {
+            case 'sending': return '⌛';
+            case 'sent': return '✓';
+            case 'delivered': return '✓✓';
+            case 'sent_offline': return '📤';
+            default: return '';
+        }
+    };
+
     return (
         <div className="chat-container">
             <div className="chat-header">
-                <h2>Chat with {sellerName}</h2>
+                <div className="chat-header-info">
+                    <h2>Chat with {sellerName}</h2>
+                    <span className={`status-indicator ${sellerStatus}`}>
+                        {sellerStatus === 'online' ? '🟢 Online' : '⚫ Offline'}
+                    </span>
+                </div>
                 <button onClick={handleCloseChat}>Close</button>
             </div>
 
@@ -130,14 +161,26 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
                             className={`chat-message ${msg.senderId === userId ? 'sent' : 'received'}`}
                         >
                             <strong>{msg.senderId === userId ? 'You' : msg.senderName}:</strong> {msg.message}
-                            <span className="timestamp">
-                                {msg.timestamp && new Date(msg.timestamp).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                })}
-                            </span>
+                            <div className="message-info">
+                                <span className="timestamp">
+                                    {msg.timestamp && new Date(msg.timestamp).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
+                                </span>
+                                {msg.senderId === userId && (
+                                    <span className="message-status">
+                                        {getMessageStatus(msg.status)}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     ))
+                )}
+                {isTyping && (
+                    <div className="typing-indicator">
+                        {sellerName} is typing...
+                    </div>
                 )}
                 <div ref={chatEndRef} />
             </div>
@@ -148,6 +191,7 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onInput={handleTyping}
                     placeholder="Type a message..."
                 />
                 <button onClick={handleSendMessage}>Send</button>

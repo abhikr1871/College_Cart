@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:3000";
 const { saveMessage } = require('./controller');
+const sendNotification = require('../notification/utils/sendNotification');
 
 function setupWebSocket(server) {
   const io = new Server(server, {
@@ -12,63 +13,119 @@ function setupWebSocket(server) {
     transports: ['websocket']
   });
 
-  const userSocketMap = new Map();
+  const userSocketMap = new Map(); // userId -> socketId
+  const userStatusMap = new Map(); // userId -> status (online/offline)
 
   io.on('connection', (socket) => {
     console.log('✅ A user connected via', socket.conn.transport.name, 'ID:', socket.id);
 
+    // Handle user connection
     socket.on('userConnected', (userId) => {
-      userSocketMap.set(userId.toString(), socket.id);
+      const userIdStr = userId.toString();
+      userSocketMap.set(userIdStr, socket.id);
+      userStatusMap.set(userIdStr, 'online');
+      
+      // Broadcast user's online status
+      socket.broadcast.emit('userStatusChanged', { userId: userIdStr, status: 'online' });
+      
       console.log(`🔗 User ${userId} connected with socket ID ${socket.id}`);
     });
 
+    // Handle sending messages
     socket.on('sendMessage', async ({ senderId, receiverId, message, senderName, receiverName }) => {
       try {
         console.log('📨 sendMessage event received:', { senderId, receiverId, message });
 
         const chatbox = await saveMessage({ senderId, receiverId, message, senderName, receiverName });
         const chatboxId = [senderId, receiverId].sort().join('_');
-
         const receiverSocketId = userSocketMap.get(receiverId.toString());
+        const lastMsg = chatbox.messages[chatbox.messages.length - 1];
 
-        if (receiverSocketId) {
-          const lastMsg = chatbox.messages[chatbox.messages.length - 1];
+        // Prepare message data
+        const messageData = {
+          senderId,
+          receiverId,
+          senderName,
+          receiverName,
+          message: lastMsg.message,
+          timestamp: lastMsg.timestamp,
+          status: 'sent'
+        };
 
-          io.to(receiverSocketId).emit('receiveMessage', {
-            senderId,
-            receiverId,
-            senderName,
-            receiverName,
-            message: lastMsg.message,
-            timestamp: lastMsg.timestamp
-          });
-
+        // If receiver is online
+        if (receiverSocketId && userStatusMap.get(receiverId.toString()) === 'online') {
+          io.to(receiverSocketId).emit('receiveMessage', messageData);
+          
+          // Send real-time notification
           io.to(receiverSocketId).emit('notification', {
             type: 'chat',
             fromUser: senderName,
             senderId,
             message: lastMsg.message,
-            chatboxId
+            chatboxId,
+            messageId: lastMsg._id
+          });
+
+          // Confirm delivery to sender
+          socket.emit('messageStatus', { 
+            messageId: lastMsg._id, 
+            status: 'delivered' 
           });
         } else {
-          console.log(`📭 Receiver ${receiverId} is not currently connected`);
+          // Receiver is offline - create persistent notification
+          console.log(`📭 Receiver ${receiverId} is offline, creating persistent notification`);
+          
+          await sendNotification({
+            toUser: receiverId,
+            fromUser: senderId,
+            message: `New message from ${senderName}: ${message}`,
+            chatboxId,
+            messageId: lastMsg._id
+          });
+
+          // Update sender about offline status
+          socket.emit('messageStatus', { 
+            messageId: lastMsg._id, 
+            status: 'sent_offline',
+            message: 'User is currently offline. They will receive your message when they return.'
+          });
         }
 
       } catch (error) {
         console.error('❌ Error saving or sending message:', error);
+        socket.emit('messageError', { 
+          error: 'Failed to send message',
+          details: error.message 
+        });
       }
     });
 
+    // Handle user typing status
+    socket.on('typing', ({ senderId, receiverId, isTyping }) => {
+      const receiverSocketId = userSocketMap.get(receiverId.toString());
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit('userTyping', { senderId, isTyping });
+      }
+    });
+
+    // Handle disconnection
     socket.on('disconnect', () => {
       for (let [userId, socketId] of userSocketMap) {
         if (socketId === socket.id) {
           userSocketMap.delete(userId);
+          userStatusMap.set(userId, 'offline');
+          
+          // Broadcast user's offline status
+          socket.broadcast.emit('userStatusChanged', { userId, status: 'offline' });
+          
           console.log(`❌ User ${userId} disconnected`);
           break;
         }
       }
     });
   });
+
+  return io;
 }
 
 module.exports = setupWebSocket;
