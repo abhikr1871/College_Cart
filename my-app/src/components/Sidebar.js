@@ -54,10 +54,11 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
   };
 
   const handleChatClick = (contact) => {
+    console.log("contact", contact, "onChatSelect", onChatSelect);
     if (onChatSelect) {
       onChatSelect({
-        senderId: contact.otherUserId,
-        senderName: contact.otherUserName,
+        sellerId: contact.otherUserId,
+        sellerName: contact.otherUserName,
         chatboxId: contact.chatboxId
       });
     }
