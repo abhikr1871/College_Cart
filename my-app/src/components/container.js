@@ -90,7 +90,7 @@ function Container() {
     console.log("💬 Chat selected:", contact);
 
     // Validate contact data
-    if (!contact.sellerId || !contact.sellerName) {
+    if (!contact.senderId || !contact.senderName) {
       console.error("❌ Missing required fields in contact:", contact);
       alert("Cannot open this chat due to missing information.");
       return;
@@ -98,8 +98,8 @@ function Container() {
 
     // Set chat details
     setChatDetails({
-      sellerId: contact.sellerId,
-      sellerName: contact.sellerName
+      sellerId: contact.senderId,
+      sellerName: contact.senderName
     });
   };
 

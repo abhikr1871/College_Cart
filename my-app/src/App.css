@@ -122,21 +122,21 @@
 }
 
 /* Scrollbar styling */
-.notification-container::-webkit-scrollbar {
+.notifications-container::-webkit-scrollbar {
   width: 6px;
 }
 
-.notification-container::-webkit-scrollbar-track {
+.notifications-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.notification-container::-webkit-scrollbar-thumb {
+.notifications-container::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 3px;
 }
 
-.notification-container::-webkit-scrollbar-thumb:hover {
+.notifications-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
@@ -159,7 +159,7 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .notification-container {
+  .notifications-container {
     top: 10px;
     right: 10px;
     left: 10px;

@@ -6,14 +6,18 @@ const saveMessage = async ({ senderId, receiverId, message, senderName, receiver
   console.log('🛠️ saveMessage called with:', { senderId, receiverId, message, senderName, receiverName });
 
   try {
-    const chatboxId = [senderId, receiverId].sort().join('_');
+    // Convert IDs to numbers
+    const senderIdNum = Number(senderId);
+    const receiverIdNum = Number(receiverId);
+    
+    const chatboxId = [senderIdNum, receiverIdNum].sort().join('_');
     let chatbox = await Chatbox.findOne({ chatboxId });
 
     if (!chatbox) {
       chatbox = new Chatbox({
         chatboxId,
-        senderId,
-        receiverId,
+        senderId: senderIdNum,
+        receiverId: receiverIdNum,
         messages: []
       });
       console.log(`🆕 Created new chatbox: ${chatboxId}`);
@@ -34,8 +38,8 @@ const saveMessage = async ({ senderId, receiverId, message, senderName, receiver
 
     // Send notification
     await sendNotification({
-      toUser: receiverId,
-      fromUser: senderId,
+      toUser: receiverIdNum,
+      fromUser: senderIdNum,
       message: `New message from ${senderName}`,
       chatboxId
     });
@@ -72,7 +76,11 @@ const getChatboxId = async (req, res) => {
   }
 
   try {
-    const chatboxId = [senderId, receiverId].sort().join('_');
+    // Convert IDs to numbers
+    const senderIdNum = Number(senderId);
+    const receiverIdNum = Number(receiverId);
+    
+    const chatboxId = [senderIdNum, receiverIdNum].sort().join('_');
     res.status(200).json({ chatboxId });
   } catch (error) {
     console.error("❌ Error fetching chatboxId:", error);
@@ -81,40 +89,85 @@ const getChatboxId = async (req, res) => {
 };
 
 // Get all chatboxes for a user
+// const getUserChatboxes = async (req, res) => {
+//   const { userId } = req.params;
+
+//   try {
+//     // Find all chatboxes where the user is either sender or receiver
+//     const chatboxes = await Chatbox.find({
+//       $or: [
+//         { senderId: userId },
+//         { receiverId: userId }
+//       ]
+//     }).sort({ 'messages.timestamp': -1 }); // Sort by most recent message
+
+//     // Process chatboxes to get last messages and unread counts
+//     const processedChatboxes = chatboxes.map(chatbox => {
+//       const lastMessage = chatbox.messages[chatbox.messages.length - 1];
+//       const unreadCount = chatbox.messages.filter(
+//         msg => !msg.read && (userId === chatbox.receiverId)
+//       ).length;
+
+//       // Extract user IDs from chatboxId (format: "smallerId_largerId")
+//       // Example: if chatboxId is "2_3" and current userId is "2", then otherUserId is "3"
+//       const [user1Id, user2Id] = chatbox.chatboxId.split('_');
+//       const otherUserId = userId === user1Id ? user2Id : user1Id;
+      
+//       const otherUserName = await getUserById(otherUserId);
+//       return {
+//         chatboxId: chatbox.chatboxId,
+//         otherUserId,  // Determined from chatboxId parsing
+//         otherUserName,  // Determined from first message
+//         lastMessage: lastMessage?.message || '',
+//         lastMessageTime: lastMessage?.timestamp || chatbox.updatedAt,
+//         unreadCount
+//       };
+//     });
+
+//     res.status(200).json(processedChatboxes);
+//   } catch (error) {
+//     console.error('Error in getUserChatboxes:', error);
+//     res.status(500).json({ message: 'Failed to fetch chatboxes' });
+//   }
+// };
+
 const getUserChatboxes = async (req, res) => {
   const { userId } = req.params;
+  const userIdNum = Number(userId); // Convert to number
 
   try {
     // Find all chatboxes where the user is either sender or receiver
     const chatboxes = await Chatbox.find({
       $or: [
-        { senderId: userId },
-        { receiverId: userId }
+        { senderId: userIdNum },
+        { receiverId: userIdNum }
       ]
     }).sort({ 'messages.timestamp': -1 }); // Sort by most recent message
 
     // Process chatboxes to get last messages and unread counts
-    const processedChatboxes = chatboxes.map(chatbox => {
+    const processedChatboxes = await Promise.all(chatboxes.map(async (chatbox) => {
       const lastMessage = chatbox.messages[chatbox.messages.length - 1];
       const unreadCount = chatbox.messages.filter(
-        msg => !msg.read && (userId === chatbox.receiverId)
+        msg => !msg.read && (userIdNum === chatbox.receiverId)
       ).length;
 
       // Extract user IDs from chatboxId (format: "smallerId_largerId")
-      // Example: if chatboxId is "2_3" and current userId is "2", then otherUserId is "3"
-      const [user1Id, user2Id] = chatbox.chatboxId.split('_');
-      const otherUserId = userId === user1Id ? user2Id : user1Id;
-      
-      const otherUserName = getUserById(otherUserId);
+      const [user1Id, user2Id] = chatbox.chatboxId.split('_').map(Number); // Convert to numbers
+      const otherUserId = userIdNum === user1Id ? user2Id : user1Id;
+
+      // ✅ Await getUserById
+      const otherUser = await getUserById(otherUserId);
+      const otherUserName = otherUser;
+
       return {
         chatboxId: chatbox.chatboxId,
-        otherUserId,  // Determined from chatboxId parsing
-        otherUserName,  // Determined from first message
+        otherUserId,
+        otherUserName,
         lastMessage: lastMessage?.message || '',
         lastMessageTime: lastMessage?.timestamp || chatbox.updatedAt,
         unreadCount
       };
-    });
+    }));
 
     res.status(200).json(processedChatboxes);
   } catch (error) {
