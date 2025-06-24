@@ -6,10 +6,6 @@ const axios = require('axios');
 
 // Generate JWT
 
-
-
-
-
 const generateToken = (id, name, collegeName, email, user_id) => {
   return jwt.sign({ id, name, collegeName, email ,user_id}, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
@@ -124,4 +120,13 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getAllUsers };
+const getUserById = async(userId) => {
+  try {
+    const user = await User.findOne({ user_id: userId });
+    return user.name;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+module.exports = { signup, login, getAllUsers, getUserById };

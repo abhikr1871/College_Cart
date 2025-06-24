@@ -1,5 +1,6 @@
 const Chatbox = require('./model'); // Chatbox schema
 const sendNotification = require('../notification/utils/sendNotification');
+const { getUserById } = require('../users/controller');
 
 const saveMessage = async ({ senderId, receiverId, message, senderName, receiverName }) => {
   console.log('🛠️ saveMessage called with:', { senderId, receiverId, message, senderName, receiverName });
@@ -103,16 +104,8 @@ const getUserChatboxes = async (req, res) => {
       // Example: if chatboxId is "2_3" and current userId is "2", then otherUserId is "3"
       const [user1Id, user2Id] = chatbox.chatboxId.split('_');
       const otherUserId = userId === user1Id ? user2Id : user1Id;
-
-      // Get the first message to find the other user's name
-      const firstMessage = chatbox.messages[0];
       
-      // Get other user's name from the first message
-      // If current user was the sender of first message, other user is the receiver
-      const otherUserName = userId === firstMessage.senderId 
-        ? firstMessage.receiverName 
-        : firstMessage.senderName;
-
+      const otherUserName = getUserById(otherUserId);
       return {
         chatboxId: chatbox.chatboxId,
         otherUserId,  // Determined from chatboxId parsing
