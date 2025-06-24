@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 // Single notification schema (embedded in array)
 const singleNotificationSchema = new mongoose.Schema({
   notifId: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
-  toUser: { type: String, ref: 'User', required: true },
-  fromUser: { type: String, ref: 'User', required: true },
+  toUser: { type: Number, ref: 'User', required: true },
+  fromUser: { type: Number, ref: 'User', required: true },
   message: { type: String, required: true },
   read: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
@@ -13,7 +13,7 @@ const singleNotificationSchema = new mongoose.Schema({
 // Main schema for each chatbox (for notifications)
 const chatNotificationSchema = new mongoose.Schema({
   chatboxId: { type: String, required: true, unique: true }, // e.g. 'user1_user2'
-  users: [{ type: String, ref: 'User' }], // optionally track both users
+  users: [{ type: Number, ref: 'User' }], // optionally track both users
   notifications: [singleNotificationSchema]
 });
 

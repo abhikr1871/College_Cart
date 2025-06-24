@@ -25,6 +25,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
         const userId = localStorage.getItem('userId');
         const contacts = await getUserChatboxes(userId);
         setChatContacts(contacts);
+        console.log(contacts);
       } catch (error) {
         console.error('Failed to fetch chat contacts:', error);
         setError('Failed to load chat contacts. Please try again.');
@@ -55,8 +56,8 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
   const handleChatClick = (contact) => {
     if (onChatSelect) {
       onChatSelect({
-        senderId: contact.otherUserId,
-        senderName: contact.otherUserName,
+        sellerId: contact.otherUserId,
+        sellerName: contact.otherUserName,
         chatboxId: contact.chatboxId
       });
     }

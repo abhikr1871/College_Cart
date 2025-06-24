@@ -99,15 +99,24 @@ const getUserChatboxes = async (req, res) => {
         msg => !msg.read && (userId === chatbox.receiverId)
       ).length;
 
-      const otherUserId = chatbox.senderId === userId ? chatbox.receiverId : chatbox.senderId;
-      const otherUserName = lastMessage 
-        ? (chatbox.senderId === userId ? lastMessage.receiverName : lastMessage.senderName)
-        : 'Unknown User';
+      // Extract user IDs from chatboxId (format: "smallerId_largerId")
+      // Example: if chatboxId is "2_3" and current userId is "2", then otherUserId is "3"
+      const [user1Id, user2Id] = chatbox.chatboxId.split('_');
+      const otherUserId = userId === user1Id ? user2Id : user1Id;
+
+      // Get the first message to find the other user's name
+      const firstMessage = chatbox.messages[0];
+      
+      // Get other user's name from the first message
+      // If current user was the sender of first message, other user is the receiver
+      const otherUserName = userId === firstMessage.senderId 
+        ? firstMessage.receiverName 
+        : firstMessage.senderName;
 
       return {
         chatboxId: chatbox.chatboxId,
-        otherUserId,
-        otherUserName,
+        otherUserId,  // Determined from chatboxId parsing
+        otherUserName,  // Determined from first message
         lastMessage: lastMessage?.message || '',
         lastMessageTime: lastMessage?.timestamp || chatbox.updatedAt,
         unreadCount
@@ -116,8 +125,8 @@ const getUserChatboxes = async (req, res) => {
 
     res.status(200).json(processedChatboxes);
   } catch (error) {
-    console.error("❌ Error fetching user chatboxes:", error);
-    res.status(500).json({ message: "Failed to fetch chatboxes" });
+    console.error('Error in getUserChatboxes:', error);
+    res.status(500).json({ message: 'Failed to fetch chatboxes' });
   }
 };
 

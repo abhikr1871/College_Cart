@@ -37,18 +37,25 @@
   }
 }
 
+.app-container {
+  position: relative;
+  min-height: 100vh;
+}
 
-notification-container {
+.notifications-container {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  max-width: 300px;
-  max-height: 80vh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-width: 350px;
+  pointer-events: none; /* Allow clicking through the container */
+}
+
+.notifications-container > * {
+  pointer-events: auto; /* Re-enable clicking on notifications */
 }
 
 /* Individual notification styling */

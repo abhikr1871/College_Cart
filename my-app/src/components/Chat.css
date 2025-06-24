@@ -10,6 +10,13 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
+  transition: box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.chat-container.dragging {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 0.95;
 }
 
 .chat-header {
@@ -21,6 +28,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: grab;
+  user-select: none;
+}
+
+.chat-header:active {
+  cursor: grabbing;
 }
 
 .chat-header-info {
