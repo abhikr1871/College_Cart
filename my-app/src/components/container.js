@@ -55,7 +55,7 @@ function Container() {
       }
 
       // Add the notification to the list and open the sidebar
-      setNotifications((prev) => [...prev, notif]);
+      setNotifications(() => [notif]);
       setSidebarOpen(true); // Auto-open sidebar
     };
 
