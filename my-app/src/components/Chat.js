@@ -4,6 +4,8 @@ import { getMessages } from '../services/api';
 import socket from '../services/socket';
 
 const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
+    console.log('🔗 Chat component rendered with userId:', userId, 'sellerId:', sellerId, 'userName:', userName, 'sellerName:', sellerName);
+    console.log('🔗 Data types - userId:', typeof userId, 'sellerId:', typeof sellerId);
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,6 +40,10 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         socket.emit('userConnected', userId);
         console.log("🔌 userConnected event emitted:", userId);
 
+        // Request seller's current status
+        socket.emit('getUserStatus', sellerId);
+        console.log("📊 Requesting status for seller:", sellerId);
+
         const handleReceiveMessage = (newMessage) => {
             console.log("📥 Received message via socket:", newMessage);
             setChatHistory((prev) => [...prev, newMessage]);
@@ -61,7 +67,9 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         };
 
         const handleUserStatus = ({ userId: statusUserId, status }) => {
-            if (statusUserId === sellerId) {
+            console.log(`📊 Received status update for user ${statusUserId}: ${status}`);
+            if (statusUserId === sellerId || statusUserId === sellerId.toString()) {
+                console.log(`📊 Updating seller ${sellerId} status from ${sellerStatus} to: ${status}`);
                 setSellerStatus(status);
             }
         };
@@ -146,6 +154,9 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
                     <h2>Chat with {sellerName}</h2>
                     <span className={`status-indicator ${sellerStatus}`}>
                         {sellerStatus === 'online' ? '🟢 Online' : '⚫ Offline'}
+                        <small style={{marginLeft: '10px', fontSize: '0.7em', opacity: 0.8}}>
+                            (Status: {sellerStatus})
+                        </small>
                     </span>
                 </div>
                 <button onClick={handleCloseChat}>Close</button>

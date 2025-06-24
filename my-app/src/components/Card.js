@@ -32,6 +32,7 @@ function Card({ item, userId, userName }) {
             alt={item?.title || "Product Image"}
           />
         </a>
+        <p>Seller Name: {item?.sellerName}</p>
         <div className="p-5">
           <a href="#">
             <h5 className="mb-2 title">{item?.title}</h5>

@@ -26,9 +26,21 @@ function setupWebSocket(server) {
       userStatusMap.set(userIdStr, 'online');
       
       // Broadcast user's online status
+      console.log('🔗 User connected and broadcasting as online:', userIdStr);
       socket.broadcast.emit('userStatusChanged', { userId: userIdStr, status: 'online' });
+      console.log('🔗 User connected and broadcasted online:', userIdStr);
+
       
       console.log(`🔗 User ${userId} connected with socket ID ${socket.id}`);
+    });
+
+    // Handle checking user status
+    socket.on('getUserStatus', (userId) => {
+      const userIdStr = userId.toString();
+      const status = userStatusMap.get(userIdStr) || 'offline';
+      console.log(`📊 Status request for user ${userIdStr}: ${status}`);
+      
+      socket.emit('userStatusChanged', { userId: userIdStr, status });
     });
 
     // Handle sending messages
@@ -106,6 +118,12 @@ function setupWebSocket(server) {
       if (receiverSocketId) {
         io.to(receiverSocketId).emit('userTyping', { senderId, isTyping });
       }
+    });
+
+    // Handle marking messages as read
+    socket.on('markAsRead', ({ chatboxId, userId, messageId }) => {
+      console.log(`📖 Marking messages as read for chatbox ${chatboxId} by user ${userId}`);
+      // This could be extended to update message read status in database
     });
 
     // Handle disconnection
