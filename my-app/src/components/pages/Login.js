@@ -1,58 +1,102 @@
-import React, { useState } from "react";
-import Header from "../header";
+import React, { useState, useEffect } from "react";
 import "./Login.css";
-import { login } from "../../services/api";
+import { login, getNotifications, getUserChatboxes } from "../../services/api";
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from "../../context/Authcontext";
-import { useEffect } from 'react';
-
+import socket from "../../services/socket";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
-  const {isAuthenticated, setIsAuthenticated} = useAuthContext();
+  const { isAuthenticated, setIsAuthenticated } = useAuthContext();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/home");
     }
-  }, [isAuthenticated]);
-
-  // use effect lagao,
-  //if is authenticated, redirect to /home
-  
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async () => {
-    let message = "hello";
-
-
     try {
-      const response = await login({ email: username, password: password });
-      console.log("response", response);
-      message = response?.data?.message;
-      console.log(message);
-      window.alert(message);
+      const response = await login({ email: username, password });
+      const message = response?.data?.message;
+      
+      // Show toast notification for the response message
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 3000
+      });
 
       if (response?.data?.status === 1) {
-        localStorage.setItem("token", response?.data?.data?.token);
-        localStorage.setItem("userId",response?.data?.data?.user_id);
-        
+        const token = response?.data?.data?.token;
+        const userId = response?.data?.data?.user_id;
+        const userName = response?.data?.data?.name;
+
+        // Save info
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("userName", userName);
+
+        // Auth and socket
         setIsAuthenticated(true);
-        setUsername(""); 
+        setUsername("");
         setPassword("");
-        navigate('/home');
+        socket.emit("userConnected", userId);
+
+        // Fetch notifications and chatboxes
+        try {
+          const [notifData, chatboxes] = await Promise.all([
+            getNotifications(userId),
+            getUserChatboxes(userId)
+          ]);
+
+          // Handle notifications
+          if (Array.isArray(notifData) && notifData.length > 0) {
+            setNotifications(notifData);
+            toast.info(`🔔 You have ${notifData.length} new message(s)! Click to view.`, {
+              autoClose: 3000,
+              onClick: () => navigate('/home?showNotifications=true'),
+            });
+          }
+
+          // Handle unread messages
+          const totalUnread = chatboxes.reduce((sum, chat) => sum + chat.unreadCount, 0);
+          if (totalUnread > 0) {
+            toast.info(`💬 You have ${totalUnread} unread message(s) in your chats!`, {
+              autoClose: 3000,
+              onClick: () => navigate('/home?showChats=true'),
+            });
+          }
+        } catch (error) {
+          console.warn("📭 Failed to fetch notifications or chatboxes:", error.message);
+        }
+
+        // Delay navigation to allow toast to be visible
+        setTimeout(() => {
+          navigate("/home");
+        }, 3000);
+        
       } else {
-        window.alert("Token not received. Please try again.");
+        toast.error("Token not received. Please try again.", {
+          position: "top-right",
+          autoClose: 3000
+        });
       }
     } catch (error) {
       console.error(error?.message);
+      toast.error("Login failed. Please check your credentials.", {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
   return (
     <div className="login-container">
-      <Header />
       <div className="login-content">
         <div className="login-form">
           <h2>Welcome to College Cart</h2>
@@ -77,10 +121,11 @@ function Login() {
           <p className="forgot-password">Forgot password?</p>
         </div>
         <div className="illustration">
-        
           <img src="/assets/LoginImage.png" alt="Isometric Illustration" />
         </div>
       </div>
+
+      <ToastContainer position="top-right" />
     </div>
   );
 }

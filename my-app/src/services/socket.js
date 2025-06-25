@@ -1,9 +1,9 @@
-import { io } from "socket.io-client";
+import { io } from 'socket.io-client';
 
-const SOCKET_URL = "http://localhost:4000"; // Backend Server URL
-
-const socket = io(SOCKET_URL, {
-  transports: ["websocket"],
+const socket = io('http://localhost:4000', {
+  transports: ['websocket'], // 💥 Forces websocket
+  upgrade: false,            // ⛔ disables polling fallback (optional)
+  withCredentials: true,
 });
 
 export default socket;

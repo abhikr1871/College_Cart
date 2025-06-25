@@ -7,6 +7,7 @@ const itemSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   collegeName: { type: String, required: true },
   sellerId: { type:Number, required: true }, // Reference to User
+  sellerName: { type: String, required: true }, // Seller's name
   createdAt: { type: Date, default: Date.now }
 });
 

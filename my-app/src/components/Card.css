@@ -1,75 +1,93 @@
-/* Card Container */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap');
+
 .product_card {
   display: flex;
   justify-content: center;
-  padding: 15px;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Card Style with Fixed Dimensions */
-.product_card .max-w-sm {
-  width: 250px; /* Set a fixed width for all cards */
+.card-content {
+  width: 260px;
   background-color: #ffffff;
-  border: 1px solid #d1e0f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
   transition: transform 0.2s ease;
+  border: 1px solid #dde9f9;
 }
 
-.product_card .max-w-sm:hover {
-  transform: scale(1.02); /* Slight scale on hover */
+.card-content:hover {
+  transform: scale(1.03);
 }
 
-/* Fixed Image Dimensions */
 .product-image {
-  width: 100%; /* Ensure image takes full width of the container */
-  height: 150px; /* Set a fixed height */
-  object-fit: cover; /* Crop image to fit within the set dimensions */
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
 }
 
-/* Title Styling */
-.title {
-  color: #1a3b5d;
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.card-body {
+  padding: 16px;
 }
 
-/* Deal Text Styling */
-.deal {
-  color: #ff8c42;
+/* Stylish Seller Badge */
+.seller {
+  font-family: 'Poppins', sans-serif;
   font-size: 0.85rem;
-  margin-bottom: 0.5rem;
+  color: #5e4ae3;
   font-weight: 500;
+  background-color: #eef1ff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+  text-transform: capitalize;
 }
 
-/* Price Styling */
-.price {
-  color: #1a3b5d;
-  font-weight: 600;
+.title {
+  font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
 }
 
-/* Description Styling */
+.deal {
+  color: #e67e22;
+  font-weight: 500;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+
+.price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a3b5d;
+  margin-bottom: 10px;
+}
+
+/* Elegant Description */
 .description {
-  color: #5a6b7c;
-  font-size: 0.9rem;
+  font-family: 'DM Sans', 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  color: #4a4a4a;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
   margin-bottom: 1rem;
 }
 
-/* Button Styling */
 .contact-btn {
   background-color: #4a90e2;
   color: white;
-  padding: 8px 16px;
-  border-radius: 5px;
-  text-align: center;
-  display: inline-block;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
   font-weight: 500;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
   transition: background-color 0.3s ease;
-  text-decoration: none;
 }
 
 .contact-btn:hover {

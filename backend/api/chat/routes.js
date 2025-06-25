@@ -1,17 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { saveMessage, getMessages, getChatboxId } = require('./controller');
+const { getMessages, getChatboxId, getUserChatboxes } = require('./controller');
 
-router.post('/message', async (req, res) => {
-  try {
-    const chatbox = await saveMessage(req.body);
-    res.status(201).json({ message: "Message saved successfully.", chatbox });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to save message" });
-  }
-});
+// ✅ Fetch chat messages by chatbox ID
+router.get('/messages/:chatboxId', getMessages);
 
-router.get('/messages/:chatboxId', getMessages); // Retrieve chat history
-router.get('/chatbox/:senderId/:receiverId', getChatboxId); // Get chatbox ID
+// ✅ Generate consistent chatbox ID for a user pair
+router.get('/chatbox/:senderId/:receiverId', getChatboxId);
+
+// ✅ Get all chatboxes for a user
+router.get('/chatboxes/:userId', getUserChatboxes);
 
 module.exports = router;

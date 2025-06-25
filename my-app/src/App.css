@@ -36,3 +36,134 @@
     transform: rotate(360deg);
   }
 }
+
+.app-container {
+  position: relative;
+  min-height: 100vh;
+}
+
+.notifications-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+  pointer-events: none;
+}
+
+.notifications-container > * {
+  pointer-events: auto;
+}
+
+/* Individual notification styling */
+.notification {
+  background: rgba(255, 255, 255, 0.95);
+  border-left: 4px solid #5e4ae3;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  animation: slideIn 0.3s ease-in-out;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.notification:hover {
+  transform: translateX(-5px);
+}
+
+/* Notification content */
+.notification-content {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.notification-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4a5568;
+}
+
+.notification-content strong {
+  color: #2d3748;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Close button */
+.cross-btn {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.cross-btn:hover {
+  background: #f7fafc;
+  color: #e53e3e;
+}
+
+/* Animation for new notifications */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Different types of notifications */
+.notification.chat {
+  border-left-color: #5e4ae3;
+  background: linear-gradient(to right, rgba(94, 74, 227, 0.05), rgba(255, 255, 255, 0.95));
+}
+
+.notification.success {
+  border-left-color: #48bb78;
+  background: linear-gradient(to right, rgba(72, 187, 120, 0.05), rgba(255, 255, 255, 0.95));
+}
+
+.notification.warning {
+  border-left-color: #ed8936;
+  background: linear-gradient(to right, rgba(237, 137, 54, 0.05), rgba(255, 255, 255, 0.95));
+}
+
+.notification.error {
+  border-left-color: #e53e3e;
+  background: linear-gradient(to right, rgba(229, 62, 62, 0.05), rgba(255, 255, 255, 0.95));
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .notifications-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .notification {
+    padding: 12px;
+    margin: 0 10px 10px;
+  }
+}
