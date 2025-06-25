@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Signup.css";
-import Header from "../header";
 import { signup } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/Authcontext";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SignUp = () => {
   const { isAuthenticated, setIsAuthenticated } = useAuthContext();
@@ -48,9 +49,10 @@ const SignUp = () => {
         setIsAuthenticated(true);
         navigate("/home");
       }
-      window.alert(response?.data?.message);
+      toast.info(response?.data?.message, { position: "top-right" });
     } catch (error) {
       console.error(error?.message);
+      toast.error("Signup failed. Please try again.", { position: "top-right" });
     }
   };
 
@@ -76,7 +78,6 @@ const SignUp = () => {
 
   return (
     <div>
-      <Header />
       <div className="signup-container">
         <div className="signup-content">
           <div className="signup-form">
@@ -140,6 +141,7 @@ const SignUp = () => {
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" />
     </div>
   );
 };

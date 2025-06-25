@@ -24,7 +24,12 @@ function Login() {
     try {
       const response = await login({ email: username, password });
       const message = response?.data?.message;
-      window.alert(message);
+      
+      // Show toast notification for the response message
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 3000
+      });
 
       if (response?.data?.status === 1) {
         const token = response?.data?.data?.token;
@@ -53,7 +58,7 @@ function Login() {
           if (Array.isArray(notifData) && notifData.length > 0) {
             setNotifications(notifData);
             toast.info(`🔔 You have ${notifData.length} new message(s)! Click to view.`, {
-              autoClose: false,
+              autoClose: 3000,
               onClick: () => navigate('/home?showNotifications=true'),
             });
           }
@@ -62,7 +67,7 @@ function Login() {
           const totalUnread = chatboxes.reduce((sum, chat) => sum + chat.unreadCount, 0);
           if (totalUnread > 0) {
             toast.info(`💬 You have ${totalUnread} unread message(s) in your chats!`, {
-              autoClose: false,
+              autoClose: 3000,
               onClick: () => navigate('/home?showChats=true'),
             });
           }
@@ -70,14 +75,23 @@ function Login() {
           console.warn("📭 Failed to fetch notifications or chatboxes:", error.message);
         }
 
-        // Navigate only once
-        navigate("/home");
+        // Delay navigation to allow toast to be visible
+        setTimeout(() => {
+          navigate("/home");
+        }, 3000);
+        
       } else {
-        window.alert("Token not received. Please try again.");
+        toast.error("Token not received. Please try again.", {
+          position: "top-right",
+          autoClose: 3000
+        });
       }
     } catch (error) {
       console.error(error?.message);
-      window.alert("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please check your credentials.", {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 

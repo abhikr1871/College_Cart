@@ -38,44 +38,22 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
   }, [isOpen]);
 
   const handleNotificationClick = async (notif) => {
-    console.log("notif", notif);
-    console.log('onNotificationClick', onNotificationClick);
-    console.log('notifications', notifications);
-    
-    // Validate that notification has required ID
-    if (!notif.messageId) {
-      console.error('❌ Notification missing messageId:', notif);
-      return;
-    }
-
     try {
-      // Handle the notification click callback first
       if (onNotificationClick) {
-        try {
-          await onNotificationClick(notif);
-        } catch (clickError) {
-          console.error('❌ Error in onNotificationClick:', clickError);
-          // Continue with marking as read even if click handler fails
-        }
+        onNotificationClick(notif);
       }
-
-      // Mark as read in backend first
-      await markNotificationAsRead(notif.messageId);
-      console.log(`✅ Notification with ID ${notif.messageId} marked as read`);
-
-      // Only remove from UI after successful backend update
       setVisibleNotifications((prev) =>
-        prev.filter((notification) => notification.messageId !== notif.messageId)
+        prev.filter((notification) => notification._id !== notif._id)
       );
 
+      await markNotificationAsRead(notif._id);
+      console.log(`✅ Notification with ID ${notif._id} marked as read`);
     } catch (error) {
-      console.error(`❌ Failed to mark notification as read with ID ${notif.messageId}:`, error);
-      // Optionally show user-facing error message here
+      console.error(`❌ Failed to mark notification as read with ID ${notif._id}:`, error);
     }
   };
 
   const handleChatClick = (contact) => {
-    console.log("contact", contact, "onChatSelect", onChatSelect);
     if (onChatSelect) {
       onChatSelect({
         sellerId: contact.otherUserId,
@@ -142,7 +120,10 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
                 >
                   <div className="notification-content">
                     <div className="notification-header">
-                      <strong>{notif.fromUser}</strong>
+                      <strong>{notif.senderName}</strong>
+                      <small className="notification-time">
+                        {new Date(notif.timestamp).toLocaleTimeString()}
+                      </small>
                     </div>
                     <p className="notification-message">{notif.message}</p>
                   </div>

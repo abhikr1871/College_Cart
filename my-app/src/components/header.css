@@ -1,143 +1,206 @@
-/* Reset and base styles */
+/* ===================== HEADER STYLING WITH FLOATING BUBBLES ===================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-header {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  header {
     width: 100%;
-    background: linear-gradient(to right, #ffffff, #f8f9fa);
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(94, 74, 227, 0.1);
+    padding: 20px 0;
     position: sticky;
     top: 0;
-    z-index: 100;
-    backdrop-filter: blur(10px);
-}
-
-.navbar {
+    z-index: 1000;
+    backdrop-filter: blur(12px);
+    background: linear-gradient(135deg, #f3f8ff 0%, #e6eeff 100%);
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(94, 74, 227, 0.08);
+    transition: all 0.3s ease-in-out;
+    border-bottom: none;
+  }
+  
+  header::before,
+  header::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    z-index: 0;
+  }
+  
+  header::before {
+    width: 250px;
+    height: 250px;
+    top: -100px;
+    left: -100px;
+    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  header::after {
+    width: 180px;
+    height: 180px;
+    bottom: -80px;
+    right: -80px;
+    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+    animation: float 8s ease-in-out infinite reverse;
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(20px, 20px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+  
+  .navbar {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 24px;
-}
-
-.logo {
-    font-size: 26px;
-    font-weight: 700;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
     color: #5e4ae3;
     text-decoration: none;
     letter-spacing: -0.5px;
-    transition: transform 0.2s;
-}
-
-.logo:hover {
-    transform: scale(1.05);
-}
-
-.nav-links {
-    list-style-type: none;
-    display: flex;
-    gap: 32px;
-    margin: 0 24px;
-}
-
-.nav-links li a {
-    text-decoration: none;
-    color: #2d3748;
-    font-weight: 500;
-    font-size: 1rem;
-    padding: 8px 0;
-    position: relative;
-    transition: color 0.2s;
-}
-
-.nav-links li a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #5e4ae3;
-    transition: width 0.2s ease;
-}
-
-.nav-links li a:hover {
-    color: #5e4ae3;
-}
-
-.nav-links li a:hover::after {
-    width: 100%;
-}
-
-.actions {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
-.action-btn {
-    padding: 10px 20px;
-    border: 2px solid #5e4ae3;
-    border-radius: 8px;
-    font-weight: 500;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.action-btn:first-child {
-    background-color: transparent;
-    color: #5e4ae3;
-}
-
-.action-btn:first-child:hover {
-    background-color: #5e4ae3;
-    color: white;
-}
-
-.action-btn:last-child {
-    background-color: #5e4ae3;
-    color: white;
-}
-
-.action-btn:last-child:hover {
-    background-color: #4a3ac3;
-    border-color: #4a3ac3;
-}
-
-.notification-icon {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    position: relative;
-    padding: 8px;
-    border-radius: 50%;
-    color: #5e4ae3;
-    transition: background-color 0.2s;
     display: flex;
     align-items: center;
-    justify-content: center;
-}
-
-.notification-icon:hover {
-    background-color: rgba(94, 74, 227, 0.1);
-}
-
-.notification-badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 8px;
-    height: 8px;
-    background-color: #ff4081;
-    border-radius: 50%;
-    border: 2px solid white;
-}
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
   
+  .logo:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 12px rgba(94, 74, 227, 0.2);
+  }
+  
+  .logo img {
+    height: 34px;
+    width: auto;
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 28px;
+    align-items: center;
+  }
+  
+  .nav-links li a {
+    text-decoration: none;
+    color: #4a5568;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    font-size: 1rem;
+  }
+  
+  .nav-links li a:hover {
+    color: #5e4ae3;
+    background: rgba(94, 74, 227, 0.08);
+    box-shadow: 0 0 12px rgba(94, 74, 227, 0.3);
+  }
+  
+  .nav-links li a.active {
+    background: rgba(94, 74, 227, 0.12);
+    color: #5e4ae3;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  
+  .action-btn {
+    padding: 10px 22px;
+    border: 2px solid #5e4ae3;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .action-btn.login {
+    background: transparent;
+    color: #5e4ae3;
+  }
+  
+  .action-btn.login:hover {
+    background: rgba(94, 74, 227, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 0 14px rgba(94, 74, 227, 0.3);
+  }
+  
+  .action-btn.signup {
+    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+    color: white;
+    box-shadow: 0 4px 12px rgba(94, 74, 227, 0.2);
+  }
+  
+  .action-btn.signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(94, 74, 227, 0.4);
+  }
+  
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #5e4ae3;
+    cursor: pointer;
+    z-index: 2;
+  }
+/*   
+  @media (max-width: 768px) {
+    header {
+      padding: 16px 0;
+    }
+  
+    .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .nav-links {
+      display: none !important; /* hide extra links on small screens */
+    /* }
+  
+    .actions {
+      flex-direction: row;
+      justify-content: flex-end;
+      width: 100%;
+      gap: 10px;
+    }
+  
+    .action-btn {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+  
+    .logo {
+      font-size: 22px;
+    }
+  }
+  
+   */ 
