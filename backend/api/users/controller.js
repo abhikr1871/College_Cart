@@ -129,4 +129,51 @@ const getUserById = async(userId) => {
   }
 }
 
-module.exports = { signup, login, getAllUsers, getUserById };
+// Get user by user_id (for profile)
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findOne({ user_id: req.params.id }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const updates = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.collegeName) {
+      // Validate college name using the free API
+      const response = await axios.get(`http://universities.hipolabs.com/search?name=${req.body.collegeName}&country=India`);
+      if (!response.data.length) {
+        return res.status(404).json({ message: "College not found in India" });
+      }
+      updates.collegeName = req.body.collegeName;
+    }
+    if (req.body.profilePic) updates.profilePic = req.body.profilePic;
+    if (req.body.password) {
+      if (!req.body.confirmPassword) {
+        return res.status(400).json({ message: "Please confirm your new password." });
+      }
+      if (req.body.password !== req.body.confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match." });
+      }
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(req.body.password, salt);
+    }
+    const user = await User.findOneAndUpdate(
+      { user_id: req.params.id },
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { signup, login, getAllUsers, getUserById, getUserProfile, updateUserProfile };

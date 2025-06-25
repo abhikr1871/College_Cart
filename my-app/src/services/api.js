@@ -111,6 +111,35 @@ export const deleteNotification = async (notifId) => {
   }
 };
 
+export const getUserProfile = async (userId) => {
+  try {
+    const response = await API.get(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+};
+
+export const updateUserProfile = async (userId, data) => {
+  try {
+    const response = await API.put(`/users/${userId}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+};
+
+export const uploadProfileImage = async (base64, fileName, mimeType) => {
+  try {
+    const response = await API.post('/upload/profile', { base64String: base64, fileName, mimeType });
+    return response.data.url;
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    throw error;
+  }
+};
 
 export default {
   signup,
@@ -123,5 +152,8 @@ export default {
   getNotifications,
   markNotificationAsRead,
   deleteNotification,
+  getUserProfile,
+  updateUserProfile,
+  uploadProfileImage,
   // sendMessage,
 };

@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   collegeName: { type: String, required: true },
   user_id:{type:Number,required:true,unique: true},
+  profilePic: { type: String, default: '' }, // S3 URL for profile picture
   
   
 }, { timestamps: true });
