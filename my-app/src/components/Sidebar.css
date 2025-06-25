@@ -11,7 +11,7 @@
   backdrop-filter: blur(10px);
   box-shadow: -5px 0 20px rgba(94, 74, 227, 0.1);
   transition: right 0.4s ease;
-  z-index: 1100;
+  z-index: 2000;
   display: flex;
   flex-direction: column;
 }

@@ -11,7 +11,7 @@
     padding: 20px 0;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 0;
     backdrop-filter: blur(12px);
     background: linear-gradient(135deg, #f3f8ff 0%, #e6eeff 100%);
     overflow: hidden;

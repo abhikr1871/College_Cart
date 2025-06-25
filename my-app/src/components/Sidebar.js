@@ -119,13 +119,10 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
                   onClick={() => handleNotificationClick(notif)}
                 >
                   <div className="notification-content">
-                    <div className="notification-header">
-                      <strong>{notif.senderName}</strong>
-                      <small className="notification-time">
-                        {new Date(notif.timestamp).toLocaleTimeString()}
-                      </small>
-                    </div>
-                    <p className="notification-message">{notif.message}</p>
+                    <p className="notification-message" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span>{notif.message}</span>
+                      <span style={{ color: '#5e4ae3', fontWeight: 600, marginLeft: 16 }}>{notif.fromUser}</span>
+                    </p>
                   </div>
                   <button
                     className="dismiss-btn"
