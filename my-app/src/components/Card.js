@@ -8,7 +8,7 @@ function Card({ item, userId, userName }) {
   const [sellerName, setSellerName] = useState("");
 
   const handleContactClick = () => {
-    console.log("Contact button clicked:", { sellerId: item?.sellerId, userId });
+    // console.log("Contact button clicked:", { sellerId: item?.sellerId, userId });
 
     setSellerId(item?.sellerId);
     setSellerName(item?.sellerName || "");

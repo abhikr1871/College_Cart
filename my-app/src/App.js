@@ -61,7 +61,7 @@ function App() {
 
     // Prevent reopening if the same chatbox is already open
     if (chatDetails && chatDetails.chatboxId === notif.chatboxId) {
-      console.log("✅ Chat already open for this chatbox.");
+      // console.log("✅ Chat already open for this chatbox.");
       return;
     }
 

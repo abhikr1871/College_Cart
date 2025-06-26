@@ -38,10 +38,10 @@ const SignUp = () => {
   }, []);
 
   const handleSignup = async () => {
-    console.log("Sign Up:", { name, collegeName, email, password, confirmPassword });
+    // console.log("Sign Up:", { name, collegeName, email, password, confirmPassword });
     try {
       const response = await signup({ name, collegeName, email, password, confirmPassword });
-      console.log("response", response);
+      // console.log("response", response);
       if (response?.data?.status === 1) {
         localStorage.setItem("token", response?.data?.data?.token);
         localStorage.setItem("userId", response?.data?.data?.user_id);

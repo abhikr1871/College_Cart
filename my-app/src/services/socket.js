@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:4000', {
+import { SOCKET_URL } from '../environment';
+const socket = io(SOCKET_URL, {
   transports: ['websocket'], // 💥 Forces websocket
   upgrade: false,            // ⛔ disables polling fallback (optional)
   withCredentials: true,

@@ -4,8 +4,8 @@ import { getMessages } from '../services/api';
 import socket from '../services/socket';
 
 const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
-    console.log('🔗 Chat component rendered with userId:', userId, 'sellerId:', sellerId, 'userName:', userName, 'sellerName:', sellerName);
-    console.log('🔗 Data types - userId:', typeof userId, 'sellerId:', typeof sellerId);
+    // console.log('🔗 Chat component rendered with userId:', userId, 'sellerId:', sellerId, 'userName:', userName, 'sellerName:', sellerName);
+    // console.log('🔗 Data types - userId:', typeof userId, 'sellerId:', typeof sellerId);
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -84,18 +84,18 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         }
 
         socket.emit('userConnected', userId);
-        console.log("🔌 userConnected event emitted:", userId);
+    //   console.log("🔌 userConnected event emitted:", userId);
 
         socket.emit('getUserStatus', sellerId);
-        console.log("📊 Requesting status for seller:", sellerId);
+    //   console.log("📊 Requesting status for seller:", sellerId);
 
         const handleReceiveMessage = (newMessage) => {
-            console.log("📥 Received message via socket:", newMessage);
+        //   console.log("📥 Received message via socket:", newMessage);
             setChatHistory((prev) => [...prev, newMessage]);
         };
 
         const handleMessageStatus = (status) => {
-            console.log("📤 Message status update:", status);
+            // console.log("📤 Message status update:", status);
             setChatHistory((prev) => 
                 prev.map(msg => 
                     msg._id === status.messageId 
@@ -112,15 +112,15 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         };
 
         const handleUserStatus = ({ userId: statusUserId, status }) => {
-            console.log(`📊 Received status update for user ${statusUserId}: ${status}`);
+            // console.log(`📊 Received status update for user ${statusUserId}: ${status}`);
             if (statusUserId === sellerId || statusUserId === sellerId.toString()) {
-                console.log(`📊 Updating seller ${sellerId} status from ${sellerStatus} to: ${status}`);
+                // console.log(`📊 Updating seller ${sellerId} status from ${sellerStatus} to: ${status}`);
                 setSellerStatus(status);
             }
         };
 
         const handleNotification = (data) => {
-            console.log("🔔 Received notification:", data);
+            // console.log("🔔 Received notification:", data);
             if (data.messageId) {
                 socket.emit('markAsRead', { chatboxId, userId, messageId: data.messageId });
             }
@@ -170,7 +170,7 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
             status: 'sending',
         };
 
-        console.log("📤 Emitting sendMessage:", newMessage);
+        // console.log("📤 Emitting sendMessage:", newMessage);
         socket.emit('sendMessage', newMessage);
 
         setChatHistory((prev) => [...prev, newMessage]);
