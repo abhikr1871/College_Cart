@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "babel . --out-dir dist --ignore node_modules,dist"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,9 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.4",
+    "@babel/preset-env": "^7.27.2",
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.7"
   }
