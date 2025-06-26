@@ -16,7 +16,7 @@ app.use(express.json());
 
 // CORS setup
 // app.use(cors());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 
 // Register routes
 app.use('/api/users', userRoutes);

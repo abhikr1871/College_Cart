@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:3000";
+const allowedOrigin = process.env.FRONTEND_URL ;
 const { saveMessage } = require('./controller');
 const sendNotification = require('../notification/utils/sendNotification');
 

@@ -25,7 +25,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
         const userId = localStorage.getItem('userId');
         const contacts = await getUserChatboxes(userId);
         setChatContacts(contacts);
-        console.log(contacts);
+        // console.log(contacts);
       } catch (error) {
         console.error('Failed to fetch chat contacts:', error);
         setError('Failed to load chat contacts. Please try again.');
@@ -47,7 +47,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
       );
 
       await markNotificationAsRead(notif._id);
-      console.log(`✅ Notification with ID ${notif._id} marked as read`);
+      // console.log(`✅ Notification with ID ${notif._id} marked as read`);
     } catch (error) {
       console.error(`❌ Failed to mark notification as read with ID ${notif._id}:`, error);
     }

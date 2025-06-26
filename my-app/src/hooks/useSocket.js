@@ -31,7 +31,7 @@ const useSocket = (onNewNotification) => {
 
     // Listen for real-time notification
     const handleNewNotification = (notif) => {
-      console.log("Received new notification:", notif);
+      // console.log("Received new notification:", notif);
       setNotifications(prev => {
         // Check if notification already exists
         const exists = prev.some(n => n._id === notif._id);
@@ -50,7 +50,7 @@ const useSocket = (onNewNotification) => {
 
     // Let backend know this user is online
     socket.emit('userConnected', userId);
-    console.log("Emitted userConnected for userId:", userId);
+    // console.log("Emitted userConnected for userId:", userId);
 
     return () => {
       socket.off('notification', handleNewNotification);

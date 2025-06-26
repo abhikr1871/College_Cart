@@ -41,7 +41,7 @@ function Container() {
     socket.emit("userConnected", userId);
 
     const handleNotification = (notif) => {
-      console.log("📥 New notification received:", notif);
+      // console.log("📥 New notification received:", notif);
 
       if (!notif.chatboxId || !notif.fromUser) {
         console.error("❌ Invalid notification data:", notif);
@@ -60,7 +60,7 @@ function Container() {
   }, [userId]);
 
   const handleNotificationClick = (notif) => {
-    console.log("🔔 Notification clicked:", notif);
+    // console.log("🔔 Notification clicked:", notif);
 
     if (!notif.senderId || !notif.senderName) {
       console.error("❌ Missing required fields in notification:", notif);

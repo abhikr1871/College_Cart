@@ -30,7 +30,7 @@ export const createItem = async (formData,token) => {
       'Authorization': `Bearer ${token}`,
     },
     });
-    console.log('Item created successfully:', response.data);
+    // console.log('Item created successfully:', response.data);
 } catch (error) {
   console.error('Error uploading item:', error.response ? error.response.data : error.message);
   // setError('Error creating item. Please try again.');
@@ -120,7 +120,7 @@ export const deleteNotification = async (notifId) => {
 
   try {
     await API.delete(`/notifications/${notifId}`);
-    console.log(`✅ Notification with ID ${notifId} deleted successfully`);
+    // console.log(`✅ Notification with ID ${notifId} deleted successfully`);
   } catch (error) {
     console.error(`❌ Error deleting notification with ID ${notifId}:`, error);
     throw error;
