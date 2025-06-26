@@ -141,13 +141,13 @@ function App() {
 
         <Routes>
           <Route index element={<Home />} />
-          <Route path="/Home" element={<Home />} />
-          <Route path="/Login" element={<Login />} />
-          <Route path="/Signup" element={<Signup />} />
-          <Route path="/Buy" element={<Buy />} />
-          <Route path="/Profile" element={<Profile />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/buy" element={<Buy />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
-            path="/Sell"
+            path="/sell"
             element={
               <PrivateRoute>
                 <Sell />
