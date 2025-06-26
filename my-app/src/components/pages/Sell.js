@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import FileBase from "react-file-base64";
 import './Sell.css';
+import { createItem } from "../../services/api";
 
 const Sell = () => {
   const [title, setTitle] = useState("");
@@ -43,22 +44,14 @@ const Sell = () => {
     formData.append('sellerName', userName);
     formData.append('collegeName', collegeName);
 
-    try {
-      const response = await axios.post('http://localhost:4000/api/items/create', formData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      console.log('Item created successfully:', response.data);
+    try{
+      const data=await createItem(formData,token);
       setSuccess('Item created successfully!');
-      
-      // Reset the form
       setTitle("");
       setDescription("");
       setPrice("");
-      setImage(null);
-    } catch (error) {
+      setImage(null); 
+    }catch(error){
       console.error('Error uploading item:', error.response ? error.response.data : error.message);
       setError('Error creating item. Please try again.');
     }

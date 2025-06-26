@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_URL } from '../environment';
 
 // Set up the base URL for the backend API
-const API = axios.create({ baseURL: 'http://localhost:4000/api' });
+const API = axios.create({ baseURL: API_URL });
 
 // Add a request interceptor to include the token in headers if available
 API.interceptors.request.use(
@@ -20,6 +21,21 @@ API.interceptors.request.use(
 
 export const signup = (userData) => API.post('/users/signup', userData);
 export const login = (userData) => API.post('/users/login', userData);
+
+export const createItem = async (formData,token) => {
+  try {
+    const response = await API.post('/items/create', formData, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    });
+    console.log('Item created successfully:', response.data);
+} catch (error) {
+  console.error('Error uploading item:', error.response ? error.response.data : error.message);
+  // setError('Error creating item. Please try again.');
+}
+};
 
 
 export const getAllUsers = () => API.get('/users');
@@ -155,5 +171,6 @@ export default {
   getUserProfile,
   updateUserProfile,
   uploadProfileImage,
+  createItem,
   // sendMessage,
 };
