@@ -19,9 +19,9 @@ const Header = ({ onNotificationClick, showNotificationBadge }) => {
       <nav className="navbar">
         <div className="logo">College Cart</div>
         <ul className="nav-links">
-          <li><a href="/home">Home</a></li>
-          <li><a href="/buy">Buy</a></li>
-          <li><a href="/sell">Sell</a></li>
+          <li><Link to="/home">Home</Link></li>
+          <li><Link to="/buy">Buy</Link></li>
+          <li><Link to="/sell">Sell</Link></li>
         </ul>
 
         <div className="actions">

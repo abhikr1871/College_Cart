@@ -34,7 +34,7 @@ function Home() {
               </div>
             </div>
 
-            <Link to="/Buy" className="cta-button">
+            <Link to="/buy" className="cta-button">
               Start Exploring
             </Link>
           </div>
