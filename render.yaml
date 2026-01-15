@@ -20,7 +20,7 @@ services:
       - key: AWS_REGION
         sync: false
 
-  - type: static
+  - type: static_site
     name: college-cart-frontend
     rootDir: my-app
     buildCommand: npm install && npm run build
