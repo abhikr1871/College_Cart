@@ -2,6 +2,7 @@ services:
   - type: web
     name: college-cart-backend
     env: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -22,6 +23,7 @@ services:
   - type: web
     name: college-cart-frontend
     env: static
+    plan: free
     rootDir: my-app
     buildCommand: npm install && npm run build
     staticPublishPath: build
