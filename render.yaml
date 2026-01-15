@@ -2,7 +2,7 @@ services:
   - type: web
     name: college-cart-backend
     env: node
-    root: backend
+    rootDir: backend
     buildCommand: npm install
     startCommand: npm start
     envVars:
@@ -22,9 +22,9 @@ services:
   - type: web
     name: college-cart-frontend
     env: static
-    root: my-app
+    rootDir: my-app
     buildCommand: npm install && npm run build
-    publish: build
+    staticPublishPath: build
     envVars:
       - key: REACT_APP_API_URL
         sync: false
