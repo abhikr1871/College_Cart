@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: college-cart-backend
+    runtime: node
+    root: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+
+  - type: static
+    name: college-cart-frontend
+    runtime: static
+    root: my-app
+    buildCommand: npm install && npm run build
+    publish: build
+    envVars:
+      - key: REACT_APP_API_URL
+        sync: false
+      - key: REACT_APP_SOCKET_URL
+        sync: false
