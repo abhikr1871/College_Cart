@@ -1,175 +1,233 @@
 /* ===================== HEADER STYLING WITH FLOATING BUBBLES ===================== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+header {
+  width: 100%;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  background: var(--bg-header);
+  overflow: hidden;
+  box-shadow: 0 4px 10px var(--shadow-color);
+  transition: all 0.3s ease-in-out;
+  border-bottom: 1px solid var(--border-color);
+}
+
+header::before,
+header::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+header::before {
+  width: 250px;
+  height: 250px;
+  top: -100px;
+  left: -100px;
+  background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+  animation: float 6s ease-in-out infinite;
+}
+
+header::after {
+  width: 180px;
+  height: 180px;
+  bottom: -80px;
+  right: -80px;
+  background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
   }
-  
-  header {
-    width: 100%;
-    padding: 20px 0;
-    position: sticky;
-    top: 0;
-    z-index: 0;
-    backdrop-filter: blur(12px);
-    background: linear-gradient(135deg, #f3f8ff 0%, #e6eeff 100%);
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(94, 74, 227, 0.08);
-    transition: all 0.3s ease-in-out;
-    border-bottom: none;
+
+  50% {
+    transform: translate(20px, 20px);
   }
-  
-  header::before,
-  header::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.1;
-    z-index: 0;
+
+  100% {
+    transform: translate(0, 0);
   }
-  
-  header::before {
-    width: 250px;
-    height: 250px;
-    top: -100px;
-    left: -100px;
-    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  header::after {
-    width: 180px;
-    height: 180px;
-    bottom: -80px;
-    right: -80px;
-    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
-    animation: float 8s ease-in-out infinite reverse;
-  }
-  
-  @keyframes float {
-    0% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(20px, 20px);
-    }
-    100% {
-      transform: translate(0, 0);
-    }
-  }
-  
-  .navbar {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .logo {
-    font-size: 28px;
-    font-weight: 800;
-    color: #5e4ae3;
-    text-decoration: none;
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  .logo:hover {
-    transform: scale(1.05);
-    text-shadow: 0 0 12px rgba(94, 74, 227, 0.2);
-  }
-  
-  .logo img {
-    height: 34px;
-    width: auto;
-  }
-  
-  .nav-links {
-    display: flex;
-    list-style: none;
-    gap: 28px;
-    align-items: center;
-  }
-  
-  .nav-links li a {
-    text-decoration: none;
-    color: #4a5568;
-    font-weight: 500;
-    padding: 10px 18px;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    position: relative;
-    font-size: 1rem;
-  }
-  
-  .nav-links li a:hover {
-    color: #5e4ae3;
-    background: rgba(94, 74, 227, 0.08);
-    box-shadow: 0 0 12px rgba(94, 74, 227, 0.3);
-  }
-  
-  .nav-links li a.active {
-    background: rgba(94, 74, 227, 0.12);
-    color: #5e4ae3;
-  }
-  
-  .actions {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-  }
-  
-  .action-btn {
-    padding: 10px 22px;
-    border: 2px solid #5e4ae3;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  .action-btn.login {
-    background: transparent;
-    color: #5e4ae3;
-  }
-  
-  .action-btn.login:hover {
-    background: rgba(94, 74, 227, 0.1);
-    transform: translateY(-1px);
-    box-shadow: 0 0 14px rgba(94, 74, 227, 0.3);
-  }
-  
-  .action-btn.signup {
-    background: linear-gradient(45deg, #5e4ae3, #7c6af3);
-    color: white;
-    box-shadow: 0 4px 12px rgba(94, 74, 227, 0.2);
-  }
-  
-  .action-btn.signup:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 16px rgba(94, 74, 227, 0.4);
-  }
-  
-  .mobile-menu-btn {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #5e4ae3;
-    cursor: pointer;
-    z-index: 2;
-  }
+}
+
+.navbar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary-color);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+  text-shadow: 0 0 12px rgba(94, 74, 227, 0.2);
+}
+
+.logo img {
+  height: 34px;
+  width: auto;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 28px;
+  align-items: center;
+}
+
+.nav-links li a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  font-size: 1rem;
+}
+
+.nav-links li a:hover {
+  color: #5e4ae3;
+  background: rgba(94, 74, 227, 0.08);
+  box-shadow: 0 0 12px rgba(94, 74, 227, 0.3);
+}
+
+.nav-links li a.active {
+  background: rgba(94, 74, 227, 0.12);
+  color: #5e4ae3;
+}
+
+.actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  color: var(--primary-color);
+}
+
+.notification-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-primary);
+  transition: transform 0.2s ease;
+}
+
+.notification-icon:hover {
+  transform: scale(1.1);
+  color: var(--primary-color);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: #ff4757;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+}
+
+.action-btn {
+  padding: 10px 22px;
+  border: 2px solid var(--primary-color);
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.action-btn.login {
+  background: transparent;
+  color: #5e4ae3;
+}
+
+.action-btn.login:hover {
+  background: rgba(94, 74, 227, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(94, 74, 227, 0.3);
+}
+
+.action-btn.signup,
+.action-btn.profile {
+  background: linear-gradient(45deg, #5e4ae3, #7c6af3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(94, 74, 227, 0.2);
+}
+
+.action-btn.signup:hover,
+.action-btn.profile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(94, 74, 227, 0.4);
+}
+
+.action-btn.logout {
+  background: transparent;
+  color: #5e4ae3;
+  cursor: pointer;
+}
+
+.action-btn.logout:hover {
+  background: rgba(94, 74, 227, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(94, 74, 227, 0.3);
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #5e4ae3;
+  cursor: pointer;
+  z-index: 2;
+}
+
 /*   
   @media (max-width: 768px) {
     header {
@@ -184,7 +242,7 @@
   
     .nav-links {
       display: none !important; /* hide extra links on small screens */
-    /* }
+/* }
   
     .actions {
       flex-direction: row;
@@ -203,4 +261,4 @@
     }
   }
   
-   */ 
+   */

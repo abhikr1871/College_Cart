@@ -1,117 +1,140 @@
 import React, { useEffect, useState } from "react";
 import "./container.css";
 import Card from "./Card";
-import Sidebar from "./Sidebar";
-import Chat from "./Chat";
+import Chat from "./Chat"; // Keep only for opening chat from contact button
 import { getItems } from "../services/api";
-import socket from "../services/socket";
+import { Search, Filter, ArrowUpDown } from 'lucide-react';
 
 function Container() {
   const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState("");
-  const [notifications, setNotifications] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatDetails, setChatDetails] = useState(null);
+
+  // Filter States
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     const storedUserName = localStorage.getItem("userName");
-
     if (storedUserId) setUserId(storedUserId);
     if (storedUserName) setUserName(storedUserName);
+
+    fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
       const response = await getItems();
-      setItems(response?.data);
+      const data = response?.data || [];
+      setItems(data);
+      setFilteredItems(data);
     } catch (error) {
       console.error("Error fetching items:", error?.message);
     }
   };
 
+  // Filter Logic
   useEffect(() => {
-    fetchData();
-  }, []);
+    let result = [...items];
 
-  useEffect(() => {
-    if (!userId) return;
-
-    socket.emit("userConnected", userId);
-
-    const handleNotification = (notif) => {
-      // console.log("📥 New notification received:", notif);
-
-      if (!notif.chatboxId || !notif.fromUser) {
-        console.error("❌ Invalid notification data:", notif);
-        return;
-      }
-
-      setNotifications(() => [notif]);
-      setSidebarOpen(true);
-    };
-
-    socket.on("notification", handleNotification);
-
-    return () => {
-      socket.off("notification", handleNotification);
-    };
-  }, [userId]);
-
-  const handleNotificationClick = (notif) => {
-    // console.log("🔔 Notification clicked:", notif);
-
-    if (!notif.senderId || !notif.senderName) {
-      console.error("❌ Missing required fields in notification:", notif);
-      alert("This notification is incomplete and cannot open the chat.");
-      return;
+    // 1. Search
+    if (searchTerm) {
+      const lowerTerm = searchTerm.toLowerCase();
+      result = result.filter(item =>
+        item.title?.toLowerCase().includes(lowerTerm) ||
+        item.description?.toLowerCase().includes(lowerTerm)
+      );
     }
 
-    setChatDetails({
-      sellerId: notif.senderId,
-      sellerName: notif.senderName,
-    });
-    setSidebarOpen(false);
-  };
-
-  const handleChatSelect = (contact) => {
-    console.log("💬 Chat selected:", contact);
-
-    if (!contact.sellerId || !contact.sellerName) {
-      console.error("❌ Missing required fields in contact:", contact);
-      alert("Cannot open this chat due to missing information.");
-      return;
+    // 2. Category (Assuming item has a category field, otherwise we can stub it or filter by title keywords)
+    if (category !== "All") {
+      // Logic: If backend has category, use it. Else, keyword matching.
+      // For now, let's assume simple keyword matching if category field is missing
+      result = result.filter(item =>
+        item.category === category ||
+        item.title?.toLowerCase().includes(category.toLowerCase()) ||
+        item.description?.toLowerCase().includes(category.toLowerCase())
+      );
     }
 
-    setChatDetails({
-      sellerId: contact.sellerId,
-      sellerName: contact.sellerName,
-    });
-  };
+    // 3. Sort
+    if (sortBy === "price_low") {
+      result.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (sortBy === "price_high") {
+      result.sort((a, b) => Number(b.price) - Number(a.price));
+    } else {
+      // Newest (assuming default order or if date field exists)
+      // result.reverse(); // If default is old -> new
+    }
+
+    setFilteredItems(result);
+  }, [items, searchTerm, category, sortBy]);
 
   const closeChat = () => setChatDetails(null);
 
   return (
-    <>
-      <Sidebar
-        userName={userName}
-        notifications={notifications}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onNotificationClick={handleNotificationClick}
-        onChatSelect={handleChatSelect}
-      />
+    <div className="marketplace_wrapper">
+      {/* Marketplace Header */}
+      <div className="marketplace-header">
+        <h1 className="page-title">Campus <span className="text-secondary">Marketplace</span></h1>
 
+        <div className="controls-bar">
+          <div className="search-box">
+            <Search size={20} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search available items..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <div className="sort-box">
+              <ArrowUpDown size={18} />
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="newest">Newest</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="category-pills">
+          {['All', 'Books', 'Electronics', 'Vehicles', 'Stationery', 'Others'].map(cat => (
+            <button
+              key={cat}
+              className={`pill ${category === cat ? 'active' : ''}`}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Product Grid */}
       <div className="container">
-        {items.map((item) => (
-          <Card
-            key={item?.id}
-            item={item}
-            userId={userId}
-            userName={userName}
-          />
-        ))}
+        {filteredItems.length > 0 ? (
+          filteredItems.map((item) => (
+            <Card
+              key={item?.id}
+              item={item}
+              userId={userId}
+              userName={userName}
+            />
+          ))
+        ) : (
+          <div className="no-results">
+            <h3>No items found</h3>
+            <p>Try adjusting your search or filters.</p>
+          </div>
+        )}
       </div>
 
       {chatDetails && (
@@ -123,7 +146,7 @@ function Container() {
           onClose={closeChat}
         />
       )}
-    </>
+    </div>
   );
 }
 

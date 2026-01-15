@@ -4,19 +4,24 @@ import FileBase from "react-file-base64";
 import { getUserProfile, updateUserProfile, uploadProfileImage, getItems, getUserChatboxes } from "../../services/api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Package, Edit2, Camera, LogOut, ChevronRight, ShoppingBag, dollarSign } from "lucide-react";
 import Chat from "../Chat";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const userId = localStorage.getItem("userId");
   const userName = localStorage.getItem("userName");
+  const navigate = useNavigate();
+
   const [profile, setProfile] = useState({
     name: "",
     email: "",
     collegeName: "",
     profilePic: "",
+    joinDate: new Date(),
   });
+
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
@@ -38,27 +43,36 @@ function Profile() {
           email: data.email,
           collegeName: data.collegeName,
           profilePic: data.profilePic || "",
+          joinDate: data.createdAt ? new Date(data.createdAt) : new Date(),
         });
       } catch (err) {
         toast.error("Failed to load profile");
       }
       setLoading(false);
     }
-    fetchProfile();
+    if (userId) fetchProfile();
   }, [userId]);
 
   useEffect(() => {
     async function fetchItemsAndChats() {
-      // Fetch all items and filter by sellerName
-      const itemsRes = await getItems();
-      setMyItems((itemsRes.data || itemsRes).filter(item => item.sellerName === userName));
-      // Fetch chat contacts (Sidebar logic)
-      const contacts = await getUserChatboxes(userId);
-      setChatContacts(Array.isArray(contacts) ? contacts : []);
+      if (!userId || !userName) return;
+      try {
+        // Fetch items
+        const itemsRes = await getItems();
+        const allItems = itemsRes.data || itemsRes;
+        setMyItems(allItems.filter(item => item.sellerName === userName));
+
+        // Fetch chats
+        const contacts = await getUserChatboxes(userId);
+        setChatContacts(Array.isArray(contacts) ? contacts : []);
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
     }
     fetchItemsAndChats();
   }, [userId, userName]);
 
+  // Click outside to close suggestion box
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (suggestionsRef.current && !suggestionsRef.current.contains(event.target)) {
@@ -66,18 +80,16 @@ function Profile() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleCollegeNameChange = async (e) => {
     const value = e.target.value;
     setProfile((prev) => ({ ...prev, collegeName: value }));
-    if (value) {
+    if (value.length > 2) {
       try {
         const response = await axios.get(`http://universities.hipolabs.com/search?name=${value}&country=India`);
-        setCollegeSuggestions(response.data);
+        setCollegeSuggestions(response.data.slice(0, 5));
       } catch (error) {
         setCollegeSuggestions([]);
       }
@@ -96,14 +108,9 @@ function Profile() {
     setLoading(true);
     let updatedData = { ...profile };
     try {
-      // If new image selected, upload to S3 first
       if (imageBase64) {
-        toast.info("Uploading profile image...");
-        const url = await uploadProfileImage(
-          imageBase64,
-          `profile_${userId}.jpg`,
-          "image/jpeg"
-        );
+        // toast.info("Uploading profile image...");
+        const url = await uploadProfileImage(imageBase64, `profile_${userId}.jpg`, "image/jpeg");
         updatedData.profilePic = url;
       }
       if (password) {
@@ -116,6 +123,7 @@ function Profile() {
         email: updated.email,
         collegeName: updated.collegeName,
         profilePic: updated.profilePic || "",
+        joinDate: new Date(updated.createdAt),
       });
       setEdit(false);
       setPassword("");
@@ -135,158 +143,192 @@ function Profile() {
     });
   };
 
-  const closeChat = () => setChatDetails(null);
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
+  };
 
   return (
-    <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', gap: '2rem', padding: '2rem', width: '100vw' }}>
-      {/* Left Card: Profile Info */}
-      <div className="profile-content" style={{ minWidth: 340, maxWidth: 380, flex: '0 0 360px', marginTop: 0 }}>
-        <img
-          src={profile.profilePic || "/assets/LoginImage.png"}
-          alt="Profile"
-          className="profile-image"
-        />
-        <form className="profile-form" onSubmit={handleUpdate}>
-          <div style={{ textAlign: 'center', marginBottom: 8 }}>
-            <b style={{ fontSize: 22 }}>{profile.name}</b>
-            <div style={{ color: '#888', fontSize: 14 }}>{profile.collegeName}</div>
-            <div style={{ color: '#888', fontSize: 14 }}>{profile.email}</div>
-          </div>
-          {edit && (
-            <>
-              <label>Change Profile Picture</label>
-              <FileBase
-                type="file"
-                multiple={false}
-                onDone={({ base64 }) => setImageBase64(base64.split(",")[1])}
+    <div className="profile-page-wrapper">
+
+      <div className="profile-dashboard">
+        {/* Sidebar / Left Column */}
+        <div className="profile-left-col">
+          <div className="user-card-glass">
+            <div className="profile-pic-wrapper">
+              <img
+                src={profile.profilePic || "/assets/LoginImage.png"}
+                alt="Profile"
+                className="profile-avatar-large"
               />
-              <label>Change Name</label>
-              <input
-                type="text"
-                value={profile.name}
-                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-              />
-              <label>Change College</label>
-              <div style={{ position: 'relative', width: '100%' }}>
-                <input
-                  type="text"
-                  value={profile.collegeName}
-                  onChange={handleCollegeNameChange}
-                  placeholder="College Name"
-                  autoComplete="off"
-                  style={{ width: '100%' }}
-                />
-                {collegeSuggestions.length > 0 && (
-                  <ul className="suggestions-list" ref={suggestionsRef} style={{ position: 'absolute', left: 0, top: '100%', width: '100%', background: '#d3d3d3', zIndex: 1000, margin: 0, padding: 0, listStyle: 'none' }}>
-                    {collegeSuggestions.map((college, index) => (
-                      <li key={index} onClick={() => handleSuggestionClick(college.name)} style={{ padding: '10px', cursor: 'pointer' }}>
-                        {college.name}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              {edit && (
+                <div className="upload-btn-wrapper">
+                  <label className="camera-icon-btn">
+                    <Camera size={18} />
+                    <FileBase
+                      type="file"
+                      multiple={false}
+                      onDone={({ base64 }) => setImageBase64(base64.split(",")[1])}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {!edit ? (
+              <div className="user-info-display">
+                <h2 className="user-name">{profile.name}</h2>
+                <p className="user-college">{profile.collegeName}</p>
+                <div className="user-badge-row">
+                  <span className="user-role-badge">Student</span>
+                  <span className="user-join-date">Joined {profile.joinDate.toLocaleDateString()}</span>
+                </div>
+                <button className="edit-profile-btn" onClick={() => setEdit(true)}>
+                  <Edit2 size={16} /> Edit Profile
+                </button>
               </div>
-              <label>Change Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="New Password"
-              />
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm New Password"
-              />
-            </>
-          )}
-          <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: 'center' }}>
-            {edit ? (
-              <>
-                <button
-                  className="update-btn"
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save"}
-                </button>
-                <button
-                  className="update-btn"
-                  type="button"
-                  style={{ background: "#ccc", color: "#333" }}
-                  onClick={() => {
-                    setEdit(false);
-                    setPassword("");
-                    setConfirmPassword("");
-                    setImageBase64(null);
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
             ) : (
-              <button
-                className="update-btn"
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setEdit(true);
-                }}
-              >
-                Edit Profile
-              </button>
+              <form className="edit-form" onSubmit={handleUpdate}>
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>College</label>
+                  <div className="autocomplete-wrapper">
+                    <input type="text" value={profile.collegeName} onChange={handleCollegeNameChange} />
+                    {collegeSuggestions.length > 0 && (
+                      <ul ref={suggestionsRef} className="suggestions-dropdown">
+                        {collegeSuggestions.map((c, i) => (
+                          <li key={i} onClick={() => handleSuggestionClick(c.name)}>{c.name}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>New Password (Optional)</label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" />
+                </div>
+                {password && (
+                  <div className="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••" />
+                  </div>
+                )}
+
+                <div className="form-actions">
+                  <button type="button" className="cancel-btn" onClick={() => { setEdit(false); setPassword(""); }}>Cancel</button>
+                  <button type="submit" className="save-btn" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</button>
+                </div>
+              </form>
             )}
+
+            <div className="account-actions">
+              <button className="logout-btn-full" onClick={handleLogout}>
+                <LogOut size={18} /> Logout
+              </button>
+            </div>
           </div>
-        </form>
+        </div>
+
+        {/* Main Content / Right Column */}
+        <div className="profile-right-col">
+
+          {/* Stats Row */}
+          <div className="stats-row">
+            <div className="stat-card">
+              <div className="stat-icon bg-purple"><Package size={24} color="#5e4ae3" /></div>
+              <div className="stat-info">
+                <h3>{myItems.length}</h3>
+                <p>Items Listed</p>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon bg-green"><MessageCircle size={24} color="#10b981" /></div>
+              <div className="stat-info">
+                <h3>{chatContacts.length}</h3>
+                <p>Active Chats</p>
+              </div>
+            </div>
+            {/* Placeholder for future stat */}
+            <div className="stat-card">
+              <div className="stat-icon bg-orange"><ShoppingBag size={24} color="#f59e0b" /></div>
+              <div className="stat-info">
+                <h3>0</h3>
+                <p>Items Sold</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions / Recent Items */}
+          <div className="content-section">
+            <div className="section-header">
+              <h3>My Listings</h3>
+              <button className="view-all-btn" onClick={() => navigate('/your-items')}>
+                Manage All <ChevronRight size={16} />
+              </button>
+            </div>
+
+            <div className="recent-items-list">
+              {myItems.length === 0 ? (
+                <div className="empty-placeholder">
+                  <p>You haven't listed anything yet.</p>
+                  <button className="sell-now-btn" onClick={() => navigate('/sell')}>Sell Now</button>
+                </div>
+              ) : (
+                myItems.slice(0, 3).map(item => (
+                  <div key={item._id} className="mini-item-card">
+                    <img src={item.image || item.images?.[0] || 'placeholder.jpg'} alt={item.title} />
+                    <div className="mini-item-info">
+                      <h4>{item.title}</h4>
+                      <span className="mini-item-price">₹{item.price}</span>
+                    </div>
+                    <span className="status-badge active">Active</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Recent Chats Section */}
+          <div className="content-section">
+            <div className="section-header">
+              <h3>Recent Conversations</h3>
+            </div>
+            <div className="recent-chats-list">
+              {chatContacts.length === 0 ? (
+                <div className="empty-placeholder">
+                  <p>No active conversations.</p>
+                </div>
+              ) : (
+                chatContacts.slice(0, 4).map((contact, idx) => (
+                  <div key={idx} className="chat-row" onClick={() => handleChatClick(contact)}>
+                    <div className="chat-avatar">{contact.otherUserName.charAt(0)}</div>
+                    <div className="chat-row-info">
+                      <h4>{contact.otherUserName}</h4>
+                      <p>Click to resume chat</p>
+                    </div>
+                    <button className="chat-action-icon"><MessageCircle size={18} /></button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* Right Side: Two Cards stacked vertically */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', flex: 1, marginTop: 40 }}>
-        {/* Top Card: My Chats */}
-        <div style={{ background: '#fff', borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '1.5rem 2rem', minWidth: 320, maxWidth: 400, alignSelf: 'flex-start' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <b style={{ fontSize: 18, color: '#5e4ae3' }}>My Chats</b>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {chatContacts.length === 0 && <div style={{ color: '#888' }}>No chats yet.</div>}
-            {chatContacts.map((contact, idx) => (
-              <div key={contact.chatboxId || idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f3f8ff', borderRadius: 10, padding: '8px 12px', minHeight: 48, maxHeight: 48, marginBottom: 4 }}>
-                <span style={{ color: '#333', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {contact.otherUserName}
-                  <MessageCircle size={20} style={{ cursor: 'pointer', color: '#5e4ae3' }} onClick={() => handleChatClick(contact)} />
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Bottom Card: My Items */}
-        <div style={{ background: '#fff', borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', padding: '1.5rem 2rem', minWidth: 320, maxWidth: 400, alignSelf: 'flex-start' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <b style={{ fontSize: 18, color: '#5e4ae3' }}>My Items</b>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {myItems.length === 0 && <div style={{ color: '#888' }}>No items listed yet.</div>}
-            {myItems.map((item, idx) => (
-              <div key={item._id || idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f3f8ff', borderRadius: 10, padding: '8px 12px', minHeight: 48, maxHeight: 48, marginBottom: 4 }}>
-                <span style={{ color: '#333', fontWeight: 500 }}>{item.title}</span>
-                <span style={{ background: '#38d39f', color: '#fff', borderRadius: 8, padding: '2px 10px', fontWeight: 600, fontSize: 13 }}>Active</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
       {chatDetails && (
         <Chat
           userId={userId}
           userName={userName}
           sellerId={chatDetails.sellerId}
           sellerName={chatDetails.sellerName}
-          onClose={closeChat}
+          onClose={() => setChatDetails(null)}
         />
       )}
-      <ToastContainer position="top-right" />
+      <ToastContainer position="top-right" theme="colored" />
     </div>
   );
 }

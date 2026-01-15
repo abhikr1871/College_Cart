@@ -1,119 +1,214 @@
 import React, { useState } from "react";
-import axios from "axios";
-import FileBase from "react-file-base64";
 import './Sell.css';
 import { createItem } from "../../services/api";
+import { Upload, X, Tag, DollarSign, CheckCircle } from 'lucide-react';
 
 const Sell = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    price: "",
+    brand: "",
+    category: "Others",
+    condition: "Good",
+    negotiable: false
+  });
+
+  const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const userName = localStorage.getItem("userName");
+
+  const categories = ["Books", "Electronics", "Vehicles", "Stationery", "Clothing", "Others"];
+  const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
+
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+
+    if (images.length + files.length > 5) {
+      setError("Maximum 5 images allowed");
+      return;
+    }
+
+    const base64Promises = files.map(file => convertToBase64(file));
+    try {
+      const base64Images = await Promise.all(base64Promises);
+      // Only append unique/new images if needed, or just append all
+      setImages(prev => [...prev, ...base64Images]);
+    } catch (err) {
+      setError("Error processing images");
+    }
+  };
+
+  const removeImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    // Retrieve token from local storage
     const token = localStorage.getItem("token");
-
     if (!token) {
       setError("Please log in to create an item");
       return;
     }
 
-    // Decode the token to get the user info (including collegeName)
-    const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT
-    const collegeName = decodedToken.collegeName;  // Extract collegeName
-
-    if (!collegeName) {
-      setError("User college information is missing");
+    // Basic Validation
+    if (images.length === 0) {
+      setError("Please upload at least one image");
       return;
     }
 
-    // Prepare form data
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('image', image);
-    formData.append('sellerName', userName);
-    formData.append('collegeName', collegeName);
+    try {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const payload = {
+        ...formData,
+        images,
+        sellerName: localStorage.getItem("userName"),
+        collegeName: decodedToken.collegeName
+      };
 
-    try{
-      const data=await createItem(formData,token);
-      setSuccess('Item created successfully!');
-      setTitle("");
-      setDescription("");
-      setPrice("");
-      setImage(null); 
-    }catch(error){
-      console.error('Error uploading item:', error.response ? error.response.data : error.message);
-      setError('Error creating item. Please try again.');
+      await createItem(payload, token);
+
+      setSuccess('Item listed successfully!');
+      // Reset form
+      setFormData({
+        title: "", description: "", price: "", brand: "", category: "Others", condition: "Good", negotiable: false
+      });
+      setImages([]);
+
+    } catch (error) {
+      console.error('Error uploading item:', error);
+      setError(error.response?.data?.message || 'Error creating item. Please try again.');
     }
   };
 
   return (
     <div className="sell-container">
-      <form onSubmit={handleSubmit} className="sell-form" encType="multipart/form-data">
-        <h2>Enlist Your Item</h2>
-        
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            type="text"
-            className="input-box"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter item title"
-            required
-          />
+      <div className="sell-card">
+        <div className="sell-header">
+          <h2>List Your Item</h2>
+          <p>Fill in the details to reach buyers on your campus.</p>
         </div>
 
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            className="input-box"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your item"
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="premium-form">
+          {/* Section 1: Basic Details */}
+          <div className="form-section">
+            <h3><Tag size={18} /> Basic Details</h3>
+            <div className="input-grid">
+              <div className="input-group">
+                <label>Title</label>
+                <input name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Engineering Physics Textbook" required />
+              </div>
+              <div className="input-group">
+                <label>Brand (Optional)</label>
+                <input name="brand" value={formData.brand} onChange={handleChange} placeholder="e.g. Pearson, Apple" />
+              </div>
+            </div>
 
-        <div className="form-group">
-          <label>Price (₹)</label>
-          <input
-            type="number"
-            className="input-box"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Enter price"
-            min="0"
-            required
-          />
-        </div>
+            <div className="input-group">
+              <label>Description</label>
+              <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Describe conditions, features, and reason for selling..." required />
+            </div>
 
-        <div className="upload-container">
-          <label className="upload-label">Upload Image</label>
-          <FileBase
-            type="file"
-            multiple={false}
-            onDone={({ base64 }) => setImage(base64)}
-          />
-        </div>
+            <div className="input-grid">
+              <div className="input-group">
+                <label>Category</label>
+                <select name="category" value={formData.category} onChange={handleChange}>
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="input-group">
+                <label>Condition</label>
+                <select name="condition" value={formData.condition} onChange={handleChange}>
+                  {conditions.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
 
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
+          {/* Section 2: Pricing */}
+          <div className="form-section">
+            <h3><DollarSign size={18} /> Price & details</h3>
+            <div className="price-input-wrapper">
+              <div className="input-group">
+                <label>Price (₹)</label>
+                <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="0.00" min="0" required className="price-field" />
+              </div>
 
-        <button type="submit" className="sell-button">
-          List Item
-        </button>
-      </form>
+              <div className="checkbox-group">
+                <input type="checkbox" id="negotiable" name="negotiable" checked={formData.negotiable} onChange={handleChange} />
+                <label htmlFor="negotiable">Price is Negotiable</label>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Images */}
+          <div className="form-section">
+            <h3><Upload size={18} /> Photos ({images.length}/5)</h3>
+
+            <div className="image-uploader-area">
+              <div className="upload-button-wrapper">
+                {images.length < 5 && (
+                  <div className="custom-file-upload">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="file-input"
+                    />
+                    <div className="upload-placeholder">
+                      <Upload size={24} />
+                      <span>Add Photos</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="image-previews">
+                {images.map((img, idx) => (
+                  <div key={idx} className="preview-card">
+                    <img src={img} alt="preview" />
+                    <button type="button" className="remove-btn" onClick={() => removeImage(idx)}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {error && <div className="feedback error">{error}</div>}
+          {success && <div className="feedback success"><CheckCircle size={18} /> {success}</div>}
+
+          <button type="submit" className="submit-btn">
+            Post Now
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

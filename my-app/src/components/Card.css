@@ -1,10 +1,301 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Inter:wght@400;500;600&family=Poppins:wght@500;600&display=swap');
-
 .product_card {
+  background: var(--bg-card);
+  /* More visible greyish */
+  font-family: 'Poppins', sans-serif !important;
+  border-radius: 20px;
+  padding: 12px;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 10px 40px -10px var(--shadow-color);
+  border: 1px solid var(--border-color);
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.product_card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px -10px rgba(94, 74, 227, 0.2);
+  z-index: 10;
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5px;
+}
+
+.seller-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4f46e5;
+  background: #e0e7ff;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1px solid #c7d2fe;
+}
+
+.like-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 20px;
-  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.like-btn:hover,
+.like-btn.active {
+  background: #fff0f5;
+  border-color: #ff6584;
+  color: #ff6584;
+  transform: scale(1.1);
+}
+
+/* Image */
+.card-image-container {
+  position: relative;
+  height: 180px;
+  /* Smaller height */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px var(--shadow-color);
+  background: var(--bg-card);
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.product_card:hover .product-image {
+  transform: scale(1.1);
+}
+
+.card-badges {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.badge {
+  background: var(--bg-header);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  text-transform: capitalize;
+}
+
+.badge.condition {
+  background: #22c55e;
+  /* Green default */
+  color: white;
+}
+
+.badge.condition.new,
+.badge.condition.like-new {
+  background: #15803d;
+}
+
+.badge.condition.good {
+  background: #22c55e;
+}
+
+.badge.condition.fair {
+  background: #eab308;
+}
+
+.badge.condition.poor {
+  background: #ef4444;
+}
+
+/* Carousel Controls */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+}
+
+.nav-btn:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.card-image-container:hover .nav-btn {
+  opacity: 1;
+}
+
+.nav-btn.prev {
+  left: 8px;
+}
+
+.nav-btn.next {
+  right: 8px;
+}
+
+.img-indicators {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.dot.active {
+  background: white;
+  transform: scale(1.2);
+}
+
+/* Info */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.product-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-family: 'Playfair Display', serif !important;
+}
+
+.price-row {
+  display: flex;
+  align-items: flex-start;
+  color: var(--text-primary);
+  margin-bottom: auto;
+}
+
+.currency {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.amount {
+  font-size: 1.4rem;
+  /* Smaller price */
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Chat Button */
+/* Card Actions */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Centered content */
+  flex: 1;
+  padding: 10px;
+  color: white;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  /* Bold text */
+  font-family: 'Outfit', sans-serif;
+  gap: 8px;
+}
+
+.contact-btn {
+  background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%);
+  /* Lighter Indigo */
+}
+
+.buy-btn {
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  /* Lighter Emerald */
+}
+
+.btn-text {
+  font-size: 0.95rem;
+  /* Slightly larger */
+}
+
+.icon-box {
+  display: none;
+  /* Remove the inner icon box background */
+}
+
+/* Directly style the icon if needed, or rely on .action-btn gap */
+.action-btn svg {
+  stroke-width: 2.5px;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.contact-btn:hover .icon-box svg {
+  stroke: #2563eb;
+}
+
+.buy-btn:hover .icon-box svg {
+  stroke: #10b981;
 }
 
 .card-content {

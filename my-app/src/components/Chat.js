@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
 import { getMessages } from '../services/api';
 import socket from '../services/socket';
+import { X, Send } from 'lucide-react'; // Assuming lucide-react is installed
 
 const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
-    // console.log('🔗 Chat component rendered with userId:', userId, 'sellerId:', sellerId, 'userName:', userName, 'sellerName:', sellerName);
-    // console.log('🔗 Data types - userId:', typeof userId, 'sellerId:', typeof sellerId);
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -13,55 +12,10 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
     const [sellerStatus, setSellerStatus] = useState('offline');
     const [typingTimeout, setTypingTimeout] = useState(null);
 
-    const [isDragging, setIsDragging] = useState(false);
-    const [position, setPosition] = useState({ x: 20, y: window.innerHeight - 520 });
-    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-
     const chatboxId = [userId, sellerId].sort().join('_');
     const chatEndRef = useRef(null);
-    const chatContainerRef = useRef(null);
 
-    const handleMouseDown = (e) => {
-        if (e.target.closest('.chat-header')) {
-            setIsDragging(true);
-            const rect = chatContainerRef.current.getBoundingClientRect();
-            setDragOffset({
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            });
-        }
-    };
-
-    const handleMouseMove = (e) => {
-        if (isDragging && chatContainerRef.current) {
-            const maxX = window.innerWidth - chatContainerRef.current.offsetWidth;
-            const maxY = window.innerHeight - chatContainerRef.current.offsetHeight;
-            
-            let newX = e.clientX - dragOffset.x;
-            let newY = e.clientY - dragOffset.y;
-            
-            newX = Math.max(0, Math.min(newX, maxX));
-            newY = Math.max(0, Math.min(newY, maxY));
-            
-            setPosition({ x: newX, y: newY });
-        }
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
-
-    useEffect(() => {
-        if (isDragging) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        }
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDragging]);
-
+    // Initial load
     useEffect(() => {
         const loadChatHistory = async () => {
             try {
@@ -75,83 +29,96 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
         };
 
         loadChatHistory();
-    }, [chatboxId]);
 
+        // Mark as read immediately when opening
+        socket.emit('markAsRead', { chatboxId, userId });
+
+    }, [chatboxId, userId]);
+
+    // Socket listeners
     useEffect(() => {
-        if (!userId || !sellerId) {
-            console.error("Missing userId or sellerId", { userId, sellerId });
-            return;
-        }
+        if (!userId || !sellerId) return;
 
         socket.emit('userConnected', userId);
-    //   console.log("🔌 userConnected event emitted:", userId);
-
         socket.emit('getUserStatus', sellerId);
-    //   console.log("📊 Requesting status for seller:", sellerId);
 
         const handleReceiveMessage = (newMessage) => {
-        //   console.log("📥 Received message via socket:", newMessage);
+            if (newMessage.chatboxId && newMessage.chatboxId !== chatboxId) return; // Ignore other chats
+
             setChatHistory((prev) => [...prev, newMessage]);
+
+            // Mark as read if window is open
+            socket.emit('markAsRead', { chatboxId, userId, messageId: newMessage._id });
         };
 
-        const handleMessageStatus = (status) => {
-            // console.log("📤 Message status update:", status);
-            setChatHistory((prev) => 
-                prev.map(msg => 
-                    msg._id === status.messageId 
-                        ? { ...msg, status: status.status } 
+        const handleMessageSent = ({ tempId, _id, status, timestamp }) => {
+            setChatHistory((prev) =>
+                prev.map(msg =>
+                    msg.tempId === tempId
+                        ? { ...msg, _id, status, timestamp } // Update optimistic message with real ID
                         : msg
                 )
             );
         };
 
+        const handleMessageStatus = (status) => {
+            setChatHistory((prev) =>
+                prev.map(msg =>
+                    msg._id === status.messageId
+                        ? { ...msg, status: status.status === 'sent_offline' ? 'sent' : status.status }
+                        : msg
+                )
+            );
+        };
+
+        const handleMessagesRead = ({ chatboxId: rChatboxId, readerId }) => {
+            if (rChatboxId === chatboxId && String(readerId) === String(sellerId)) {
+                // The other person read our messages
+                setChatHistory(prev => prev.map(msg =>
+                    (msg.senderId === userId || msg.senderId === Number(userId))
+                        ? { ...msg, read: true, status: 'read' }
+                        : msg
+                ));
+            }
+        };
+
         const handleUserTyping = ({ senderId, isTyping }) => {
-            if (senderId === sellerId) {
+            if (String(senderId) === String(sellerId)) {
                 setIsTyping(isTyping);
             }
         };
 
         const handleUserStatus = ({ userId: statusUserId, status }) => {
-            // console.log(`📊 Received status update for user ${statusUserId}: ${status}`);
-            if (statusUserId === sellerId || statusUserId === sellerId.toString()) {
-                // console.log(`📊 Updating seller ${sellerId} status from ${sellerStatus} to: ${status}`);
+            if (String(statusUserId) === String(sellerId)) {
                 setSellerStatus(status);
-            }
-        };
-
-        const handleNotification = (data) => {
-            // console.log("🔔 Received notification:", data);
-            if (data.messageId) {
-                socket.emit('markAsRead', { chatboxId, userId, messageId: data.messageId });
             }
         };
 
         socket.on('receiveMessage', handleReceiveMessage);
         socket.on('messageStatus', handleMessageStatus);
+        socket.on('messageSent', handleMessageSent); // New listener
+        socket.on('messagesRead', handleMessagesRead);
         socket.on('userTyping', handleUserTyping);
         socket.on('userStatusChanged', handleUserStatus);
-        socket.on('notification', handleNotification);
 
         return () => {
             socket.off('receiveMessage', handleReceiveMessage);
             socket.off('messageStatus', handleMessageStatus);
+            socket.off('messageSent', handleMessageSent);
+            socket.off('messagesRead', handleMessagesRead);
             socket.off('userTyping', handleUserTyping);
             socket.off('userStatusChanged', handleUserStatus);
-            socket.off('notification', handleNotification);
         };
     }, [chatboxId, userId, sellerId]);
 
+    // Auto-scroll
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [chatHistory]);
+    }, [chatHistory, isTyping]);
 
     const handleTyping = () => {
         socket.emit('typing', { senderId: userId, receiverId: sellerId, isTyping: true });
-        
-        if (typingTimeout) {
-            clearTimeout(typingTimeout);
-        }
-        
+        if (typingTimeout) clearTimeout(typingTimeout);
         setTypingTimeout(setTimeout(() => {
             socket.emit('typing', { senderId: userId, receiverId: sellerId, isTyping: false });
         }, 2000));
@@ -160,6 +127,7 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
     const handleSendMessage = async () => {
         if (!message.trim()) return;
 
+        const tempId = Date.now().toString(); // Temporary ID for optimistic UI
         const newMessage = {
             senderId: userId,
             receiverId: String(sellerId),
@@ -168,90 +136,94 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
             message,
             timestamp: new Date(),
             status: 'sending',
+            read: false,
+            tempId, // Track locally
         };
 
-        // console.log("📤 Emitting sendMessage:", newMessage);
         socket.emit('sendMessage', newMessage);
-
         setChatHistory((prev) => [...prev, newMessage]);
         setMessage('');
     };
 
-    const handleCloseChat = () => {
-        socket.emit('markAsRead', { chatboxId, userId });
-        onClose();
+    const formatTime = (date) => {
+        return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const getMessageStatus = (status) => {
-        switch(status) {
-            case 'sending': return '⌛';
-            case 'sent': return '✓';
-            case 'delivered': return '✓✓';
-            case 'sent_offline': return '📤';
-            default: return '';
-        }
+    const getStatusIcon = (msg) => {
+        if (msg.read || msg.status === 'read') return <span className="read-receipt read">✓✓</span>;
+        if (msg.status === 'delivered') return <span className="read-receipt">✓✓</span>;
+        if (msg.status === 'sent') return <span className="read-receipt">✓</span>;
+        if (msg.status === 'sending') return <span className="read-receipt">🕒</span>;
+        return null;
     };
+
+    // Date grouping helper
+    const groupMessagesByDate = (messages) => {
+        const groups = {};
+        messages.forEach(msg => {
+            const date = new Date(msg.timestamp).toLocaleDateString();
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(msg);
+        });
+        return groups;
+    };
+
+    const groupedMessages = groupMessagesByDate(chatHistory);
 
     return (
-        <div 
-            ref={chatContainerRef}
-            className={`chat-container ${isDragging ? 'dragging' : ''}`}
-            style={{
-                position: 'fixed',
-                left: `${position.x}px`,
-                top: `${position.y}px`,
-                cursor: isDragging ? 'grabbing' : 'auto'
-            }}
-            onMouseDown={handleMouseDown}
-        >
-            <div className="chat-header" style={{ cursor: 'grab' }}>
+        <div className="chat-widget">
+            <div className="chat-header" onClick={() => {/* Future: minimize logic */ }}>
                 <div className="chat-header-info">
-                    <h2>Chat with {sellerName}</h2>
-                    <span className={`status-indicator ${sellerStatus}`}>
-                        {sellerStatus === 'online' ? '🟢 Online' : '⚫ Offline'}
-                        <small style={{marginLeft: '10px', fontSize: '0.7em', opacity: 0.8}}>
-                            (Status: {sellerStatus})
-                        </small>
+                    <h2>{sellerName}</h2>
+                    <span className="status-indicator">
+                        <span className={`status-dot ${sellerStatus}`}></span>
+                        {sellerStatus === 'online' ? 'Online' : 'Offline'}
                     </span>
                 </div>
-                <button onClick={handleCloseChat}>Close</button>
+                <button className="close-chat-btn" onClick={onClose}>
+                    <X size={18} />
+                </button>
             </div>
 
-            <div className="chat-history">
+            <div className="chat-messages">
                 {loading ? (
-                    <p className="loading">Loading chat history...</p>
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>Loading...</div>
                 ) : (
-                    chatHistory.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={`chat-message ${msg.senderId === userId ? 'sent' : 'received'}`}
-                        >
-                            <strong>{msg.senderId === userId ? 'You' : msg.senderName}:</strong> {msg.message}
-                            <div className="message-info">
-                                <span className="timestamp">
-                                    {msg.timestamp && new Date(msg.timestamp).toLocaleTimeString([], {
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    })}
-                                </span>
-                                {msg.senderId === userId && (
-                                    <span className="message-status">
-                                        {getMessageStatus(msg.status)}
-                                    </span>
-                                )}
+                    Object.entries(groupedMessages).map(([date, msgs]) => (
+                        <div key={date}>
+                            <div className="date-separator">
+                                <span>{new Date(date).toDateString() === new Date().toDateString() ? 'Today' : date}</span>
                             </div>
+                            {msgs.map((msg, index) => {
+                                const isMe = String(msg.senderId) === String(userId) || (msg.senderName === userName);
+                                return (
+                                    <div key={index} className={`message-group ${isMe ? 'sent' : 'received'}`}>
+                                        {!isMe && <span className="message-sender-name">{msg.senderName}</span>}
+                                        <div className="message-bubble">
+                                            {msg.message}
+                                        </div>
+                                        <div className="message-meta">
+                                            {formatTime(msg.timestamp)}
+                                            {isMe && getStatusIcon(msg)}
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     ))
                 )}
+
                 {isTyping && (
-                    <div className="typing-indicator">
-                        {sellerName} is typing...
+                    <div className="typing-container">
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
                     </div>
                 )}
                 <div ref={chatEndRef} />
             </div>
 
-            <div className="chat-input">
+            <div className="chat-input-area">
                 <input
                     type="text"
                     value={message}
@@ -260,7 +232,13 @@ const Chat = ({ userId, sellerId, userName, sellerName, onClose }) => {
                     onInput={handleTyping}
                     placeholder="Type a message..."
                 />
-                <button onClick={handleSendMessage}>Send</button>
+                <button
+                    className="send-btn"
+                    onClick={handleSendMessage}
+                    disabled={!message.trim()}
+                >
+                    <Send size={18} />
+                </button>
             </div>
         </div>
     );

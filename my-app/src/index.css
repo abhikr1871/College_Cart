@@ -1,17 +1,57 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* LIGHT MODE (Default) */
+  --bg-gradient: linear-gradient(135deg, #f3f8ff 0%, #e6eeff 100%);
+  --bg-card: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.85);
+  --text-primary: #1a1a2e;
+  --text-secondary: #64748b;
+  --primary-color: #5e4ae3;
+  --border-color: #e2e8f0;
+  --bubble-opacity: 0.15;
+  --bubble-filter: blur(5px);
+  --bubble-blend: normal;
+  /* Default for light mode */
+  --input-bg: #fff;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode {
+  /* DARK MODE - DEEP THEME */
+  --bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  /* Deepest Blue/Black */
+  --bg-card: #1e293b;
+  /* Slate 800 */
+  --bg-header: rgba(15, 23, 42, 0.85);
+  /* Slate 900 Glass */
+  --text-primary: #f8fafc;
+  /* Slate 50 */
+  --text-secondary: #94a3b8;
+  /* Slate 400 */
+  --primary-color: #818cf8;
+  /* Indigo 400 */
+  --border-color: #334155;
+  /* Slate 700 */
+  --bubble-opacity: 0.3;
+  --bubble-filter: blur(2px) drop-shadow(0 0 10px rgba(129, 140, 248, 0.6));
+  --bubble-blend: screen;
+  /* New variable for blend mode */
+  --input-bg: #0f172a;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
 body {
   margin: 0;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-/* src/index.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

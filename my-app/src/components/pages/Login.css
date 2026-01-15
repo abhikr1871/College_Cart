@@ -4,43 +4,8 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f3f8ff 0%, #e6eeff 100%);
   position: relative;
   overflow: hidden;
-}
-
-/* Floating decorative bubbles like home page */
-.login-container::before,
-.login-container::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.1;
-  z-index: 0;
-}
-
-.login-container::before {
-  width: 300px;
-  height: 300px;
-  top: -150px;
-  left: -150px;
-  background: linear-gradient(45deg, #5e4ae3 0%, #7c6af3 100%);
-  animation: float 6s ease-in-out infinite;
-}
-
-.login-container::after {
-  width: 200px;
-  height: 200px;
-  bottom: -100px;
-  right: -100px;
-  background: linear-gradient(45deg, #5e4ae3 0%, #7c6af3 100%);
-  animation: float 8s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(20px, 20px); }
-  100% { transform: translate(0, 0); }
 }
 
 .login-content {
@@ -49,24 +14,25 @@
   align-items: center;
   max-width: 1000px;
   padding: 2rem;
-  background-color: #fff;
+  background-color: var(--bg-card);
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px var(--shadow-color);
   position: relative;
   top: 150px;
-  z-index: 1; /* ensure above bubbles */
+  z-index: 1;
+  /* ensure above bubbles */
 }
 
 /* Left side login form styling */
 .login-form {
   flex: 1;
   padding: 2rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .login-form h2 {
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
@@ -81,13 +47,15 @@
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .login-button {
   width: 100%;
   padding: 1rem;
-  background-color: #5e4ae3;
+  background-color: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -102,7 +70,7 @@
 
 .forgot-password {
   margin-top: 1rem;
-  color: #3e32b3;
+  color: var(--primary-color);
   cursor: pointer;
   text-align: center;
 }

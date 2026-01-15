@@ -9,7 +9,7 @@ const saveMessage = async ({ senderId, receiverId, message, senderName, receiver
     // Convert IDs to numbers
     const senderIdNum = Number(senderId);
     const receiverIdNum = Number(receiverId);
-    
+
     const chatboxId = [senderIdNum, receiverIdNum].sort().join('_');
     let chatbox = await Chatbox.findOne({ chatboxId });
 
@@ -24,14 +24,17 @@ const saveMessage = async ({ senderId, receiverId, message, senderName, receiver
     }
 
     const newMessage = {
+      senderId: senderIdNum, // Added senderId
       message,
       senderName,
       receiverName,
       timestamp: new Date(),
-      read: false
+      read: false,
+      status: 'sent' // Default to sent
     };
 
     chatbox.messages.push(newMessage);
+    chatbox.lastMessageAt = new Date(); // Update sort timestamp
     await chatbox.save();
 
     console.log(`💬 Message saved to chatbox: ${chatboxId}`);
@@ -79,7 +82,7 @@ const getChatboxId = async (req, res) => {
     // Convert IDs to numbers
     const senderIdNum = Number(senderId);
     const receiverIdNum = Number(receiverId);
-    
+
     const chatboxId = [senderIdNum, receiverIdNum].sort().join('_');
     res.status(200).json({ chatboxId });
   } catch (error) {
@@ -88,83 +91,74 @@ const getChatboxId = async (req, res) => {
   }
 };
 
-// Get all chatboxes for a user
-// const getUserChatboxes = async (req, res) => {
-//   const { userId } = req.params;
+// Mark messages as read
+const markMessagesAsRead = async (chatboxId, userId) => {
+  try {
+    const chatbox = await Chatbox.findOne({ chatboxId });
+    if (!chatbox) return;
 
-//   try {
-//     // Find all chatboxes where the user is either sender or receiver
-//     const chatboxes = await Chatbox.find({
-//       $or: [
-//         { senderId: userId },
-//         { receiverId: userId }
-//       ]
-//     }).sort({ 'messages.timestamp': -1 }); // Sort by most recent message
+    let updated = false;
+    chatbox.messages.forEach(msg => {
+      // Mark messages as read if I am the receiver (senderId is not me) and they are not read
+      if (msg.senderId && msg.senderId !== Number(userId) && !msg.read) {
+        msg.read = true;
+        msg.status = 'read'; // Sync status
+        updated = true;
+      }
+    });
 
-//     // Process chatboxes to get last messages and unread counts
-//     const processedChatboxes = chatboxes.map(chatbox => {
-//       const lastMessage = chatbox.messages[chatbox.messages.length - 1];
-//       const unreadCount = chatbox.messages.filter(
-//         msg => !msg.read && (userId === chatbox.receiverId)
-//       ).length;
+    if (updated) {
+      await chatbox.save();
+      console.log(`✅ Marked messages as read in ${chatboxId}`);
+    }
+  } catch (error) {
+    console.error('❌ Error marking messages as read:', error);
+  }
+};
 
-//       // Extract user IDs from chatboxId (format: "smallerId_largerId")
-//       // Example: if chatboxId is "2_3" and current userId is "2", then otherUserId is "3"
-//       const [user1Id, user2Id] = chatbox.chatboxId.split('_');
-//       const otherUserId = userId === user1Id ? user2Id : user1Id;
-      
-//       const otherUserName = await getUserById(otherUserId);
-//       return {
-//         chatboxId: chatbox.chatboxId,
-//         otherUserId,  // Determined from chatboxId parsing
-//         otherUserName,  // Determined from first message
-//         lastMessage: lastMessage?.message || '',
-//         lastMessageTime: lastMessage?.timestamp || chatbox.updatedAt,
-//         unreadCount
-//       };
-//     });
-
-//     res.status(200).json(processedChatboxes);
-//   } catch (error) {
-//     console.error('Error in getUserChatboxes:', error);
-//     res.status(500).json({ message: 'Failed to fetch chatboxes' });
-//   }
-// };
+const updateMessageStatus = async (chatboxId, messageId, status) => {
+  try {
+    await Chatbox.findOneAndUpdate(
+      { chatboxId, "messages._id": messageId },
+      { $set: { "messages.$.status": status } }
+    );
+    // console.log(`✅ Updated message ${messageId} status to ${status}`);
+  } catch (error) {
+    console.error('❌ Error updating message status:', error);
+  }
+};
 
 const getUserChatboxes = async (req, res) => {
   const { userId } = req.params;
-  const userIdNum = Number(userId); // Convert to number
+  const userIdNum = Number(userId);
 
   try {
-    // Find all chatboxes where the user is either sender or receiver
     const chatboxes = await Chatbox.find({
       $or: [
         { senderId: userIdNum },
         { receiverId: userIdNum }
       ]
-    }).sort({ 'messages.timestamp': -1 }); // Sort by most recent message
+    }).sort({ lastMessageAt: -1 }); // Optimized sort
 
-    // Process chatboxes to get last messages and unread counts
     const processedChatboxes = await Promise.all(chatboxes.map(async (chatbox) => {
       const lastMessage = chatbox.messages[chatbox.messages.length - 1];
-      const unreadCount = chatbox.messages.filter(
-        msg => !msg.read && (userIdNum === chatbox.receiverId)
-      ).length;
 
-      // Extract user IDs from chatboxId (format: "smallerId_largerId")
-      const [user1Id, user2Id] = chatbox.chatboxId.split('_').map(Number); // Convert to numbers
+      const unreadCount = chatbox.messages.filter(msg => {
+        // Only count if senderId exists and it's not me.
+        return msg.senderId && msg.senderId !== userIdNum && !msg.read;
+      }).length;
+
+      const [user1Id, user2Id] = chatbox.chatboxId.split('_').map(Number);
       const otherUserId = userIdNum === user1Id ? user2Id : user1Id;
 
-      // ✅ Await getUserById
       const otherUser = await getUserById(otherUserId);
-      const otherUserName = otherUser;
 
       return {
         chatboxId: chatbox.chatboxId,
         otherUserId,
-        otherUserName,
+        otherUserName: otherUser,
         lastMessage: lastMessage?.message || '',
-        lastMessageTime: lastMessage?.timestamp || chatbox.updatedAt,
+        lastMessageTime: lastMessage?.timestamp || chatbox.lastMessageAt || chatbox.updatedAt,
         unreadCount
       };
     }));
@@ -180,5 +174,8 @@ module.exports = {
   saveMessage,
   getMessages,
   getChatboxId,
-  getUserChatboxes
+  getUserChatboxes,
+  getUserChatboxes,
+  markMessagesAsRead,
+  updateMessageStatus
 };

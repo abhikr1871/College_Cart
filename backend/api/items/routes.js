@@ -1,12 +1,15 @@
-const express=require('express');
-const {listItems,createItem}=require('./controller');
+const express = require('express');
+const { listItems, createItem, getUserItems, deleteItem, updateItem } = require('./controller');
 // const uploadImage = require('../../middleware/uploadImage');
 const { uploadItemImage } = require('./controller.js');
 
-const auth=require('../../middleware/auth');
+const auth = require('../../middleware/auth');
 
-const router=express.Router();
+const router = express.Router();
 
-router.get('/',auth,listItems);
-router.post('/create',auth,createItem);
-module.exports=router;
+router.get('/user', auth, getUserItems);
+router.get('/', auth, listItems);
+router.post('/create', auth, createItem);
+router.delete('/:id', auth, deleteItem);
+router.put('/:id', auth, updateItem);
+module.exports = router;

@@ -22,19 +22,19 @@ API.interceptors.request.use(
 export const signup = (userData) => API.post('/users/signup', userData);
 export const login = (userData) => API.post('/users/login', userData);
 
-export const createItem = async (formData,token) => {
+export const createItem = async (formData, token) => {
   try {
     const response = await API.post('/items/create', formData, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
     });
     // console.log('Item created successfully:', response.data);
-} catch (error) {
-  console.error('Error uploading item:', error.response ? error.response.data : error.message);
-  // setError('Error creating item. Please try again.');
-}
+  } catch (error) {
+    console.error('Error uploading item:', error.response ? error.response.data : error.message);
+    // setError('Error creating item. Please try again.');
+  }
 };
 
 
@@ -111,6 +111,14 @@ export const markNotificationAsRead = async (notifId) => {
   }
 };
 
+export const markChatAsRead = async (chatboxId, userId) => {
+  try {
+    await API.patch(`/chat/read/${chatboxId}/${userId}`);
+  } catch (error) {
+    console.error('Error marking chat as read:', error);
+  }
+};
+
 // 3. (Optional) Hard delete a notification
 export const deleteNotification = async (notifId) => {
   if (!notifId) {
@@ -157,11 +165,28 @@ export const uploadProfileImage = async (base64, fileName, mimeType) => {
   }
 };
 
+// Item Management
+export const getUserItems = () => API.get('/items/user');
+export const deleteItem = (id) => API.delete(`/items/${id}`);
+export const updateItem = (id, data) => API.put(`/items/${id}`, data);
+
+// Community
+export const createResource = (data) => API.post('/community/resources', data);
+export const getResources = (params) => API.get('/community/resources', { params });
+export const likeResource = (id) => API.put(`/community/resources/${id}/like`);
+
+export const createIssue = (data) => API.post('/community/issues', data);
+export const getIssues = () => API.get('/community/issues');
+export const upvoteIssue = (id) => API.put(`/community/issues/${id}/upvote`);
+
 export default {
   signup,
   login,
   getAllUsers,
   getItems,
+  getUserItems,
+  deleteItem,
+  updateItem,
   getMessages,
   getUserChatboxes,
   getChatboxId,
@@ -172,5 +197,10 @@ export default {
   updateUserProfile,
   uploadProfileImage,
   createItem,
-  // sendMessage,
+  createResource,
+  getResources,
+  likeResource,
+  createIssue,
+  getIssues,
+  upvoteIssue
 };

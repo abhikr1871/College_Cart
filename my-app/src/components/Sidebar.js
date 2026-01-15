@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./Sidebar.css";
 import { X, Bell, MessageCircle } from "lucide-react";
-import { markNotificationAsRead, getUserChatboxes } from "../services/api"; 
+import { markNotificationAsRead, getUserChatboxes, markChatAsRead } from "../services/api";
 
 function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick, onChatSelect }) {
   const [visibleNotifications, setVisibleNotifications] = useState([]);
-  const [activeTab, setActiveTab] = useState('notifications');
+  const [activeTab, setActiveTab] = useState('chats'); // Default to chats (WhatsApp style)
   const [chatContacts, setChatContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,7 +18,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
   useEffect(() => {
     const fetchChatContacts = async () => {
       if (!isOpen || !localStorage.getItem('userId')) return;
-      
+
       setLoading(true);
       setError(null);
       try {
@@ -53,7 +53,20 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
     }
   };
 
-  const handleChatClick = (contact) => {
+  const handleChatClick = async (contact) => {
+    // 1. Optimistically update UI to zero out unread messages immediately
+    setChatContacts(prev => prev.map(c =>
+      c.chatboxId === contact.chatboxId
+        ? { ...c, unreadCount: 0 }
+        : c
+    ));
+
+    // 2. Call Backend API to mark as read
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      await markChatAsRead(contact.chatboxId, userId);
+    }
+
     if (onChatSelect) {
       onChatSelect({
         sellerId: contact.otherUserId,
@@ -68,7 +81,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-header">
         <div className="tab-buttons">
-          <button 
+          <button
             className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
             onClick={() => setActiveTab('notifications')}
           >
@@ -78,7 +91,7 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
               <span className="notification-badge">{visibleNotifications.length}</span>
             )}
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'chats' ? 'active' : ''}`}
             onClick={() => setActiveTab('chats')}
           >
@@ -113,8 +126,8 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
               </div>
             ) : (
               visibleNotifications.map((notif, index) => (
-                <div 
-                  key={notif._id || index} 
+                <div
+                  key={notif._id || index}
                   className="notification-item"
                   onClick={() => handleNotificationClick(notif)}
                 >
@@ -156,25 +169,34 @@ function Sidebar({ userName, notifications, isOpen, onClose, onNotificationClick
               </div>
             ) : (
               chatContacts.map((contact) => (
-                <div 
-                  key={contact.chatboxId} 
+                <div
+                  key={contact.chatboxId}
                   className="chat-contact"
                   onClick={() => handleChatClick(contact)}
                 >
-                  <div className="contact-avatar">👤</div>
-                  <div className="contact-info">
-                    <strong>{contact.otherUserName}</strong>
-                    <small>{contact.lastMessage || 'Start chatting!'}</small>
-                    <span className="last-message-time">
-                      {new Date(contact.lastMessageTime).toLocaleTimeString([], { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </span>
+                  <div className="contact-avatar">
+                    {/* Avatar Placeholder - Initials or User Icon */}
+                    {contact.otherUserName ? contact.otherUserName.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  {contact.unreadCount > 0 && (
-                    <span className="unread-count">{contact.unreadCount}</span>
-                  )}
+                  <div className="contact-info">
+                    <div className="contact-header">
+                      <strong className="contact-name">{contact.otherUserName}</strong>
+                      <span className="last-message-time">
+                        {new Date(contact.lastMessageTime).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    <div className="contact-body">
+                      <p className="last-message-preview">
+                        {contact.lastMessage || 'Start a conversation'}
+                      </p>
+                      {contact.unreadCount > 0 && (
+                        <span className="unread-badge">{contact.unreadCount}</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))
             )}
