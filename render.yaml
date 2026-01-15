@@ -2,7 +2,7 @@ services:
   - type: web
     name: college-cart-backend
     env: node
-    plan: free
+    plan: starter
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -20,10 +20,8 @@ services:
       - key: AWS_REGION
         sync: false
 
-  - type: web
+  - type: static
     name: college-cart-frontend
-    env: static
-    plan: free
     rootDir: my-app
     buildCommand: npm install && npm run build
     staticPublishPath: build
