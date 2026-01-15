@@ -1,7 +1,7 @@
 services:
   - type: web
     name: college-cart-backend
-    runtime: node
+    env: node
     root: backend
     buildCommand: npm install
     startCommand: npm start
@@ -19,9 +19,9 @@ services:
       - key: AWS_REGION
         sync: false
 
-  - type: static
+  - type: web
     name: college-cart-frontend
-    runtime: static
+    env: static
     root: my-app
     buildCommand: npm install && npm run build
     publish: build
