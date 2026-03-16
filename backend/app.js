@@ -15,9 +15,12 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// CORS setup
-// app.use(cors());
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+// CORS setup - allow both local dev and production frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // Register routes
 app.use('/api/users', userRoutes);

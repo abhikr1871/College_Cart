@@ -2,7 +2,7 @@ services:
   - type: web
     name: college-cart-backend
     runtime: node
-    plan: starter
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
@@ -18,6 +18,10 @@ services:
       - key: AWS_SECRET_ACCESS_KEY
         sync: false
       - key: AWS_REGION
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: FRONTEND_URL
         sync: false
 
   - type: static

@@ -1,16 +1,19 @@
 const { Server } = require('socket.io');
-const allowedOrigin = process.env.FRONTEND_URL;
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
+].filter(Boolean);
 const { saveMessage, markMessagesAsRead, updateMessageStatus } = require('./controller');
 const sendNotification = require('../notification/utils/sendNotification');
 
 function setupWebSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: allowedOrigin,
+      origin: allowedOrigins,
       methods: ['GET', 'POST'],
       credentials: true
     },
-    transports: ['websocket']
+    transports: ['websocket', 'polling']
   });
 
   const userSocketMap = new Map(); // userId -> socketId
