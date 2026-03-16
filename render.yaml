@@ -24,12 +24,11 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  - type: static
-    name: college-cart-frontend
-    plan: free
+staticSites:
+  - name: college-cart-frontend
     rootDir: my-app
     buildCommand: npm install && npm run build
-    staticPublishPath: build
+    publishPath: build
     envVars:
       - key: REACT_APP_API_URL
         sync: false
